@@ -192,7 +192,7 @@ RSpec.configure do |config|
       FileUtils.mkdir_p File.join(sandbox_path, dir)
     end
 
-    FileUtils.ln_s File.expand_path(File.join(File.dirname(__FILE__), '..', 'bin', 'fresh')), bin_path
+    FileUtils.ln_s File.expand_path(File.join(File.dirname(__FILE__), '..', 'bin', 'fresh.perl')), bin_path + 'fresh'
 
     ENV['HOME'] = File.join(sandbox_path, 'home')
     ENV['PATH'] = [bin_path, ENV['PATH']].join(':')
