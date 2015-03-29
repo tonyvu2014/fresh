@@ -80,6 +80,13 @@ def run_fresh(options = {})
     end
     expect(@exit_status).to eq options.fetch(:exit_status, true)
   else
+    # system("find #{sandbox_path} -type d | sed s%$%/%")
+    # puts
+    # system("find #{sandbox_path} -type f")
+    # puts
+    # system("find #{sandbox_path} -type l | while read X; do echo $X -\\> $(readlink $X); done")
+    # puts
+    # puts @stderr
     expect(@stderr).to be_empty
     expect(@stdout).to eq "#{FRESH_SUCCESS_LINE}\n"
     expect(@exit_status).to eq options.fetch(:exit_status, true)

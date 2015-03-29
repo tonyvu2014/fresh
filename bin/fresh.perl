@@ -10,6 +10,7 @@ use File::Path qw(make_path remove_tree);
 use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
+use Data::Dump qw(dump);
 
 my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
 my $FRESH_PATH = $ENV{FRESH_PATH} ||= "$ENV{HOME}/.fresh";
@@ -137,6 +138,9 @@ $$entry{file}:$$entry{line}: $content
 You may need to run `fresh update` if you're adding a new line,
 or the file you're referencing may have moved or been deleted.
 EOF
+#     if [[ -n "$REPO_NAME" ]]; then
+#       echo "Have a look at the repo: <$(_format_url "$(_repo_url "$REPO_NAME")")>" >&2
+#     fi
   exit 1;
 }
 
@@ -176,6 +180,8 @@ sub fresh_install {
       $prefix = "$FRESH_LOCAL/";
     }
 
+    dump($entry) if -t STDOUT;
+
     my $matched = 0;
 
     my @paths;
@@ -192,6 +198,8 @@ sub fresh_install {
       @paths = bsd_glob("$prefix$$entry{name}");
     }
 
+    # TODO: fresh-order
+
     for my $path (@paths) {
       unless (-d $path) {
         my $name = remove_prefix($path, $prefix);
@@ -203,7 +211,7 @@ sub fresh_install {
           $link_path =~ s{^~/}{$ENV{HOME}/};
           $build_name = remove_prefix($link_path, $ENV{HOME}) =~ s/^\///r =~ s/^\.//r;
           if ($is_external_target) {
-            $build_name = $build_name =~ s/[\/ ()]+/-/gr =~ s/-$//r;
+            $build_name = $build_name =~ s/(?<!^~)[\/ ()]+/-/gr =~ s/-$//r;
           }
           if ($is_dir_target) {
             $build_name .= remove_prefix($name, $$entry{name});
@@ -228,7 +236,7 @@ sub fresh_install {
           my $build_target = "$FRESH_PATH/build.new/$build_name";
           if (defined($marker)) {
             append $build_target, "\n" if -e $build_target;
-            append $build_target, "$marker fresh: $name\n\n";
+            append $build_target, "$marker fresh: $name\n\n"; # TODO: add repo name
           }
           append $build_target, $data;
 
@@ -247,11 +255,16 @@ sub fresh_install {
     }
 
     if ($is_dir_target && $is_external_target) {
+      # TODO: can this be DRYed up with `$link_path = …`, etc` above?
+      # rspec spec/fresh_spec.rb -e 'local files in nested'
       my $link_path = $$entry{options}{file} =~ s{^~/}{$ENV{HOME}/}r =~ s{/$}{}r;
-      my $build_name = remove_prefix($link_path, $ENV{HOME}) =~ s/^\///r =~ s/^\.//r;
+      my $build_name = $$entry{options}{file} =~ s/(?<!^~)[\/ ()]+/-/gr =~ s/-$//r;
+      $build_name = remove_prefix($build_name =~ s{^~/}{$ENV{HOME}/}r, $ENV{HOME}) =~ s/^\///r =~ s/^\.//r;
       make_link($link_path, "$FRESH_PATH/build/$build_name");
     }
   }
+
+  die "todo" if -t STDOUT;
 
   system(qw(find), "$FRESH_PATH/build.new", qw(-type f -exec chmod -w {} ;)) == 0 or die $@;
 
