@@ -169,7 +169,7 @@ sub fresh_install {
   remove_tree "$FRESH_PATH/build.new";
   make_path "$FRESH_PATH/build.new";
 
-  append "$FRESH_PATH/build.new/shell.sh", 'export PATH="$HOME/bin:$PATH"' . "\n";
+  append "$FRESH_PATH/build.new/shell.sh", '__FRESH_BIN_PATH__=$HOME/bin; [[ ! $PATH =~ (^|:)$__FRESH_BIN_PATH__(:|$) ]] && export PATH="$__FRESH_BIN_PATH__:$PATH"; unset __FRESH_BIN_PATH__' . "\n";
   append "$FRESH_PATH/build.new/shell.sh", "export FRESH_PATH=\"$FRESH_PATH\"\n";
 
   for my $entry (read_freshrc()) {
