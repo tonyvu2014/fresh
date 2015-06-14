@@ -156,16 +156,22 @@ EOF
 }
 
 sub entry_error {
-  my ($entry, $msg) = @_;
+  my ($entry, $msg, $options) = @_;
 
   my $content = read_file_line($$entry{file}, $$entry{line});
+  chomp($content);
 
   print STDERR <<EOF;
 \033[4;31mError\033[0m: $msg
 $$entry{file}:$$entry{line}: $content
+EOF
+  if (!$$options{skip_info}) {
+    print STDERR <<EOF;
+
 You may need to run `fresh update` if you're adding a new line,
 or the file you're referencing may have moved or been deleted.
 EOF
+  }
 #     if [[ -n "$REPO_NAME" ]]; then
 #       echo "Have a look at the repo: <$(_format_url "$(_repo_url "$REPO_NAME")")>" >&2
 #     fi
@@ -180,15 +186,21 @@ sub remove_prefix {
   return $str;
 }
 
-sub make_link {
-  my ($link_path, $link_target) = @_;
+sub make_entry_link {
+  my ($entry, $link_path, $link_target) = @_;
   my $existing_target = readlink($link_path);
 
   if (defined($existing_target)) {
-    die "link already exists" if $existing_target ne $link_target;
+    if ($existing_target ne $link_target) {
+      entry_error $entry, "$link_path already exists (pointing to $existing_target)."; # TODO: this should skip info
+    }
+  } elsif (-e $link_path) {
+    entry_error $entry, "$link_path already exists.", {skip_info => 1};
   } else {
-    make_path(dirname($link_path));
-    symlink($link_target, $link_path) or die "error linking";
+    make_path(dirname($link_path), {error => \my $err});
+    if (@$err || !symlink($link_target, $link_path)) {
+      entry_error $entry, "Could not create $link_path. Do you have permission?", {skip_info => 1};
+    }
   }
 }
 
@@ -300,7 +312,7 @@ EOF
           }
 
           if (defined($link_path) && !$is_dir_target) {
-            make_link($link_path, "$FRESH_PATH/build/$build_name");
+            make_entry_link($entry, $link_path, "$FRESH_PATH/build/$build_name");
           }
         }
       }
@@ -315,7 +327,7 @@ EOF
       my $link_path = $$entry{options}{file} =~ s{^~/}{$ENV{HOME}/}r =~ s{/$}{}r;
       my $build_name = $$entry{options}{file} =~ s/(?<!^~)[\/ ()]+/-/gr =~ s/-$//r;
       $build_name = remove_prefix($build_name =~ s{^~/}{$ENV{HOME}/}r, $ENV{HOME}) =~ s/^\///r =~ s/^\.//r;
-      make_link($link_path, "$FRESH_PATH/build/$build_name");
+      make_entry_link($entry, $link_path, "$FRESH_PATH/build/$build_name");
     }
   }
 

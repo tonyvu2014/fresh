@@ -980,7 +980,6 @@ describe 'fresh' do
   end
 
   it 'errors if existing symlink for bin does not point to a fresh path' do
-    pending
     rc 'fresh bin/sedmv --bin'
     touch fresh_local_path + 'bin/sedmv'
     FileUtils.mkdir_p File.expand_path('~/bin')
@@ -1004,7 +1003,6 @@ describe 'fresh' do
     end
 
     it 'errors if existing symlink for file does not point to a fresh path' do
-      pending
       FileUtils.ln_s '/dev/null', File.expand_path('~/.pryrc')
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -1019,7 +1017,6 @@ describe 'fresh' do
     end
 
     it 'errors if file exists' do
-      pending
       touch sandbox_path + 'home/.pryrc'
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -1029,7 +1026,6 @@ describe 'fresh' do
     end
 
     it 'errors if directory is not writable' do
-      pending
       FileUtils.chmod '-w', sandbox_path + 'home'
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -1049,7 +1045,6 @@ describe 'fresh' do
   end
 
   it 'errors if directory cannot be created' do
-    pending
     rc 'fresh foo --file=~/.config/foo'
     touch fresh_local_path + 'foo'
 
@@ -1072,7 +1067,6 @@ describe 'fresh' do
   end
 
   it 'errors if link destination is a file' do
-    pending
     touch fresh_local_path + 'gitconfig'
     touch fresh_local_path + 'sedmv'
     file_add File.expand_path('~/.gitconfig'), 'foo'
