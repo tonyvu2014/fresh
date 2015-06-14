@@ -220,8 +220,6 @@ sub fresh_install {
       $prefix = "$FRESH_LOCAL/";
     }
 
-    dump($entry) if -t STDOUT;
-
     my $matched = 0;
 
     my @paths;
@@ -330,8 +328,6 @@ EOF
       make_entry_link($entry, $link_path, "$FRESH_PATH/build/$build_name");
     }
   }
-
-  die "todo" if -t STDOUT;
 
   system(qw(find), "$FRESH_PATH/build.new", qw(-type f -exec chmod -w {} ;)) == 0 or die $@;
 
