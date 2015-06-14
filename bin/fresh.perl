@@ -11,6 +11,7 @@ use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
 use Data::Dump qw(dump);
+use sort 'stable';
 
 my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
 my $FRESH_PATH = $ENV{FRESH_PATH} ||= "$ENV{HOME}/.fresh";
@@ -189,19 +190,33 @@ sub fresh_install {
     my $is_dir_target = defined($$entry{options}{file}) && $$entry{options}{file} =~ /\/$/;
     my $is_external_target = defined($$entry{options}{file}) && $$entry{options}{file} =~ /^[\/~]/;
 
+    my $full_entry_name = "$prefix$$entry{name}";
+    my $base_entry_name = dirname($full_entry_name);
+
     if ($is_dir_target) {
       my $wanted = sub {
         push @paths, $_;
       };
-      find({wanted => $wanted, no_chdir => 1}, "$prefix$$entry{name}");
+      find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
     } else {
-      @paths = bsd_glob("$prefix$$entry{name}");
+      @paths = bsd_glob($full_entry_name);
     }
 
-    # TODO: fresh-order
+    if (my $fresh_order_data = readfile($base_entry_name . '/.fresh-order')) {
+      my @order_lines = map { "$base_entry_name/$_" } split(/\n/, $fresh_order_data);
+      my $path_index = sub {
+        my ($path) = @_;
+        my ($index) = grep { $order_lines[$_] eq $path } 0..$#order_lines;
+        $index = 1e6 unless defined($index);
+        $index;
+      };
+      @paths = sort {
+        $path_index->($a) <=> $path_index->($b);
+      } @paths;
+    }
 
     for my $path (@paths) {
-      unless (-d $path) {
+      unless (-d $path || $path =~ /\/\.fresh-order$/) {
         my $name = remove_prefix($path, $prefix);
 
         my ($build_name, $link_path, $marker);
