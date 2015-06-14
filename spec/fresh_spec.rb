@@ -84,6 +84,7 @@ describe 'fresh' do
 
     describe 'using --ignore-missing' do
       it 'builds' do
+        pending
         rc 'fresh aliases/haskell --ignore-missing'
         FileUtils.mkdir_p fresh_local_path
 
@@ -93,6 +94,7 @@ describe 'fresh' do
       end
 
       it 'does not create a file when single source is missing' do
+        pending
         rc <<-EOF.strip_heredoc
           fresh tmux.conf --file --ignore-missing
           fresh ghci --file --ignore-missing
@@ -243,6 +245,7 @@ describe 'fresh' do
       end
 
       it 'does not link generic files with relative paths' do
+        pending
         rc 'fresh foo-bar.zsh --file=vendor/foo/bar.zsh'
         touch fresh_local_path + 'foo-bar.zsh'
 
@@ -253,6 +256,7 @@ describe 'fresh' do
       end
 
       it 'does not allow relative paths above build dir' do
+        pending
         rc 'fresh foo-bar.zsh --file=../foo/bar.zsh'
         touch fresh_local_path + 'foo-bar.zsh'
 
@@ -322,6 +326,7 @@ describe 'fresh' do
         end
 
         it 'builds with ref' do
+          pending
           rc 'fresh repo/name recursive-test --ref=abc1237 --file=vendor/test/'
           FileUtils.mkdir_p fresh_path + 'source/repo/name'
           stub_git
@@ -400,6 +405,7 @@ describe 'fresh' do
       end
 
       it 'warns if concatenating bin files' do
+        pending
         rc <<-EOF.strip_heredoc
           FRESH_NO_BIN_CONFLICT_CHECK=true
           fresh gemdiff --bin
@@ -432,6 +438,7 @@ describe 'fresh' do
   describe 'remote files' do
     describe 'cloning' do
       it 'clones GitHub repos' do
+        pending
         rc 'fresh repo/name file'
         stub_git
 
@@ -447,6 +454,7 @@ describe 'fresh' do
       end
 
       it 'clones other repos' do
+        pending
         rc <<-EOF
           fresh git://example.com/one/two.git file
           fresh http://example.com/foo file
@@ -470,6 +478,7 @@ describe 'fresh' do
       end
 
       it 'clones github repos with full urls' do
+        pending
         rc <<-EOF
           fresh git@github.com:ssh/test.git file
           fresh git://github.com/git/test.git file
@@ -505,6 +514,7 @@ describe 'fresh' do
 
     describe 'building shell files' do
       it 'builds shell files from cloned github repos' do
+        pending
         rc 'fresh repo/name file'
         file_add fresh_path + 'source/repo/name/file', 'remote content'
 
@@ -518,6 +528,7 @@ describe 'fresh' do
       end
 
       it 'builds shell files from cloned other repos' do
+        pending
         rc 'fresh git://example.com/foobar.git file'
         file_add fresh_path + 'source/example.com/foobar/file', 'remote content'
 
@@ -532,6 +543,7 @@ describe 'fresh' do
     end
 
     it 'warns if using a remote source that is your local dotfiles' do
+      pending
       rc <<-EOF.strip_heredoc
         fresh repo/name file1
         fresh repo/name file2
@@ -578,6 +590,7 @@ describe 'fresh' do
 
     describe 'using --ref' do
       it 'builds' do
+        pending
         rc <<-EOF.strip_heredoc
           fresh repo/name 'aliases/*' --ref=abc1237
           fresh repo/name ackrc --file --ref=1234567
@@ -625,6 +638,7 @@ describe 'fresh' do
       end
 
       it 'errors if source file missing at ref' do
+        pending
         rc 'fresh repo/name bad-file --ref=abc1237'
         FileUtils.mkdir_p fresh_path + 'source/repo/name'
         stub_git
@@ -646,6 +660,7 @@ describe 'fresh' do
 
       context 'with --ignore-missing' do
         it 'does not error if source file missing at ref with --ignore-missing' do
+          pending
           rc 'fresh repo/name bad-file --ref=abc1237 --ignore-missing'
           FileUtils.mkdir_p fresh_path + 'source/repo/name'
           stub_git
@@ -659,6 +674,7 @@ describe 'fresh' do
         end
 
         it 'builds files with ref and ignore missing' do
+          pending
           rc <<-EOF.strip_heredoc
             fresh repo/name ackrc --file --ref=abc1237 --ignore-missing
             fresh repo/name missing --file --ref=abc1237 --ignore-missing
@@ -688,6 +704,7 @@ describe 'fresh' do
       end
 
       it 'links directory of generic files for whole repo' do
+        pending
         rc 'fresh repo/name . --file=~/.foo/'
 
         file_add fresh_path + 'source/repo/name/file1', 'file1'
@@ -711,6 +728,7 @@ describe 'fresh' do
       end
 
       it 'links directory of generic files for whole repo with ref' do
+        pending
         rc 'fresh repo/name . --file=~/.foo/ --ref=abc123'
 
         run_fresh
@@ -729,11 +747,13 @@ describe 'fresh' do
 
       describe 'errors if trying to use whole repo with invalid arguments' do
         it 'runs with good arguments' do
+          pending
           rc 'fresh repo/name . --file=~/.good/'
           run_fresh
         end
 
         it 'errors with an invalid path to --file' do
+          pending
           rc 'fresh repo/name . --file=~/.bad-path'
           run_fresh error_title: <<-EOF.strip_heredoc
             #{ERROR_PREFIX} Whole repositories require destination to be a directory.
@@ -741,6 +761,7 @@ describe 'fresh' do
         end
 
         it 'errors when missing path to --file' do
+          pending
           rc 'fresh repo/name . --file'
           run_fresh error_title: <<-EOF.strip_heredoc
             #{ERROR_PREFIX} Whole repositories require destination to be a directory.
@@ -748,6 +769,7 @@ describe 'fresh' do
         end
 
         it 'errors when missing --file' do
+          pending
           rc 'fresh repo/name .'
           run_fresh error_title: <<-EOF.strip_heredoc
             #{ERROR_PREFIX} Whole repositories can only be sourced in file mode.
@@ -755,6 +777,7 @@ describe 'fresh' do
         end
 
         it 'errors when missing repo' do
+          pending
           rc 'fresh . --file=~/.bad-local/'
           run_fresh error_title: <<-EOF.strip_heredoc
             #{ERROR_PREFIX} Cannot source whole of local dotfiles.
@@ -780,6 +803,7 @@ describe 'fresh' do
     end
 
     it 'with ref' do
+      pending
       rc "fresh repo/name 'recursive-test/*' --ref=abc1237"
       stub_git
 
@@ -827,6 +851,7 @@ describe 'fresh' do
       end
 
       it 'ignores hidden files' do
+        pending
         rc "fresh repo/name 'hidden-test/*' --ref=abc1237"
 
         run_fresh
@@ -837,6 +862,7 @@ describe 'fresh' do
       end
 
       it 'includes hidden files when explicitly referenced with ref' do
+        pending
         rc "fresh repo/name 'hidden-test/.*' --ref=abc1237"
 
         run_fresh
@@ -872,6 +898,7 @@ describe 'fresh' do
     end
 
     it 'with ref' do
+      pending
       rc "fresh repo/name 'order-test/*' --ref=abc1237"
       FileUtils.mkdir_p fresh_path + 'source/repo/name'
       stub_git
@@ -907,6 +934,7 @@ describe 'fresh' do
 
   describe 'using --filter' do
     it 'runs filters on files' do
+      pending
       file_add fresh_local_path + 'aliases', 'foo other_username bar'
       rc "fresh aliases --filter='sed s/other_username/my_username/ | tr _ -'"
 
@@ -920,6 +948,7 @@ describe 'fresh' do
     end
 
     it 'runs filters on files locked to a ref' do
+      pending
       FileUtils.mkdir_p fresh_local_path
       rc "fresh aliases/git.sh --ref=abc1237 --filter='sed s/test/TEST/'"
       stub_git
@@ -935,6 +964,7 @@ describe 'fresh' do
   end
 
   it 'errors when linking bin files with relative paths' do
+    pending
     touch fresh_local_path + 'foobar'
 
     rc 'fresh foobar --bin=foobar'
@@ -952,6 +982,7 @@ describe 'fresh' do
   end
 
   it 'errors if existing symlink for bin does not point to a fresh path' do
+    pending
     rc 'fresh bin/sedmv --bin'
     touch fresh_local_path + 'bin/sedmv'
     FileUtils.mkdir_p File.expand_path('~/bin')
@@ -975,6 +1006,7 @@ describe 'fresh' do
     end
 
     it 'errors if existing symlink for file does not point to a fresh path' do
+      pending
       FileUtils.ln_s '/dev/null', File.expand_path('~/.pryrc')
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -989,6 +1021,7 @@ describe 'fresh' do
     end
 
     it 'errors if file exists' do
+      pending
       touch sandbox_path + 'home/.pryrc'
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -998,6 +1031,7 @@ describe 'fresh' do
     end
 
     it 'errors if directory is not writable' do
+      pending
       FileUtils.chmod '-w', sandbox_path + 'home'
 
       run_fresh error: <<-EOF.strip_heredoc
@@ -1007,6 +1041,7 @@ describe 'fresh' do
     end
 
     it 'replaces old symlinks pointing inside the fresh build directory' do
+      pending
       FileUtils.ln_s fresh_path + 'build/pryrc-old-name', File.expand_path('~/.pryrc')
 
       run_fresh
@@ -1016,6 +1051,7 @@ describe 'fresh' do
   end
 
   it 'errors if directory cannot be created' do
+    pending
     rc 'fresh foo --file=~/.config/foo'
     touch fresh_local_path + 'foo'
 
@@ -1038,6 +1074,7 @@ describe 'fresh' do
   end
 
   it 'errors if link destination is a file' do
+    pending
     touch fresh_local_path + 'gitconfig'
     touch fresh_local_path + 'sedmv'
     file_add File.expand_path('~/.gitconfig'), 'foo'
@@ -1061,6 +1098,7 @@ describe 'fresh' do
   end
 
   it 'shows source of errors' do
+    pending
     stub_git
     FileUtils.mkdir_p fresh_local_path
 
@@ -1114,6 +1152,7 @@ describe 'fresh' do
 
   describe 'update' do
     it 'updates fresh files' do
+      pending
       FileUtils.mkdir_p fresh_path + 'source/repo/name/.git'
       FileUtils.mkdir_p fresh_path + 'source/other_repo/other_name/.git'
       stub_git
@@ -1135,6 +1174,7 @@ describe 'fresh' do
     end
 
     it 'updates fresh files for a specified GitHub user' do
+      pending
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/dotfiles/.git'
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/scripts/.git'
       FileUtils.mkdir_p fresh_path + 'source/jasoncodes/dotfiles/.git'
@@ -1157,6 +1197,7 @@ describe 'fresh' do
     end
 
     it 'updates fresh files for a specified GitHub repo' do
+      pending
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/dotfiles/.git'
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/dotfiles-old/.git'
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/scripts/.git'
@@ -1183,6 +1224,7 @@ describe 'fresh' do
       end
 
       it 'updates local repo with no args' do
+        pending
         run_fresh command: 'update', success: <<-EOF.strip_heredoc
           * Updating local files
           | Current branch master is up to date.
@@ -1204,6 +1246,7 @@ describe 'fresh' do
       end
 
       it 'only updates local repo with --local arg' do
+        pending
         run_fresh command: %w[update --local], success: <<-EOF.strip_heredoc
           * Updating local files
           | Current branch master is up to date.
@@ -1221,6 +1264,7 @@ describe 'fresh' do
       end
 
       it 'does not update local with other args' do
+        pending
         run_fresh command: %w[update freshshell], success: <<-EOF.strip_heredoc
           * Updating freshshell/fresh
           | Current branch master is up to date.
@@ -1235,6 +1279,7 @@ describe 'fresh' do
     end
 
     it 'does not update local dirty local' do
+      pending
       touch fresh_local_path + '.git/dirty'
       stub_git
 
@@ -1251,6 +1296,7 @@ describe 'fresh' do
     end
 
     it 'errors if no matching sources to update' do
+      pending
       FileUtils.mkdir_p fresh_path + 'source'
 
       run_fresh(
@@ -1260,6 +1306,7 @@ describe 'fresh' do
     end
 
     it 'errors if more than one argument is passed to update' do
+      pending
       FileUtils.mkdir_p fresh_path + 'source'
 
       run_fresh command: %w[update twe4ked dotfiles], error: <<-EOF.strip_heredoc
@@ -1272,6 +1319,7 @@ describe 'fresh' do
     end
 
     it 'shows a github compare url when updating remote' do
+      pending
       file_add fresh_path + 'source/jasoncodes/dotfiles/.git/output', <<-EOF.strip_heredoc
         From https://github.com/jasoncodes/dotfiles
            47ad84c..57b8b2b  master     -> origin/master
@@ -1292,6 +1340,7 @@ describe 'fresh' do
     end
 
     it 'shows a github compare url when updating local' do
+      pending
       stub_git
 
       file_add fresh_local_path + '.git/output', <<-EOF.strip_heredoc
@@ -1313,6 +1362,7 @@ describe 'fresh' do
     end
 
     it 'shows no url when updating other repos' do
+      pending
       stub_git
 
       file_add fresh_path + 'source/gitorious.org/willgit-mainline/.git/output', <<-EOF.strip_heredoc
@@ -1329,6 +1379,7 @@ describe 'fresh' do
     end
 
     it 'logs update output' do
+      pending
       FileUtils.mkdir_p fresh_local_path + '.git'
       FileUtils.mkdir_p fresh_path + 'source/repo/name/.git'
       FileUtils.mkdir_p fresh_path + 'source/other_repo/other_name/.git'
@@ -1359,6 +1410,7 @@ describe 'fresh' do
     end
 
     it 'does not run build if update fails' do
+      pending
       rc 'fresh aliases'
       file_add fresh_local_path + 'aliases', "alias gs='git status'"
       FileUtils.mkdir_p fresh_path + 'source/repo/name1/.git'
@@ -1374,6 +1426,7 @@ describe 'fresh' do
     end
 
     it 'builds after update with latest binary' do
+      pending
       rc 'fresh bin/\* --bin'
       file_add fresh_local_path + 'bin/fresh', 'echo new >> "$SANDBOX_PATH/fresh.log"'
       file_add fresh_local_path + 'bin/other', 'echo bad >> "$SANDBOX_PATH/fresh.log"'
@@ -1405,6 +1458,7 @@ describe 'fresh' do
       end
 
       it 'errors if freshrc is missing bin/fresh' do
+        pending
         run_fresh error: <<-EOF.strip_heredoc
           #{ERROR_PREFIX} It looks you do not have fresh in your freshrc file. This could result
           in difficulties running `fresh` later. You probably want to add a line like
@@ -1449,6 +1503,7 @@ SH
       end
 
       it 'allows default bin path to be configured' do
+        pending
         rc <<-EOF
           FRESH_BIN_PATH="$HOME/Applications/bin"
           fresh bin/fresh --bin
@@ -1513,6 +1568,7 @@ SH
 
     describe 'FRESH_NO_PATH_EXPORT' do
       it 'does not output a $PATH if enabled' do
+        pending
         ENV['FRESH_NO_PATH_EXPORT'] = '1'
         run_fresh
 
@@ -1540,6 +1596,7 @@ SH
 
   describe 'fresh_after_build' do
     it 'runs fresh after build' do
+      pending
       rc "fresh_after_build() { echo test after_build; }"
 
       run_fresh success: <<-EOF.strip_heredoc
@@ -1551,6 +1608,7 @@ SH
 
   describe 'search' do
     it 'searches directory for keywords' do
+      pending
       stub_curl 'foo', 'bar baz'
 
       run_fresh command: %w[search foo bar], success: <<-EOF.strip_heredoc
@@ -1569,6 +1627,7 @@ SH
     end
 
     it 'shows error if no search query given' do
+      pending
       stub_curl
 
       run_fresh(
@@ -1580,6 +1639,7 @@ SH
     end
 
     it 'shows error if search has no results' do
+      pending
       stub_curl
 
       run_fresh(
@@ -1598,6 +1658,7 @@ SH
     end
 
     it 'shows error if search api call fails' do
+      pending
       stub_curl error: 'Could not connect.'
 
       run_fresh(
@@ -1618,6 +1679,7 @@ SH
 
   describe 'clean' do
     it 'cleans dead symlinks from home and bin' do
+      pending
       rc <<-EOF
         fresh alive --file
         fresh alive --bin
@@ -1652,6 +1714,7 @@ SH
     end
 
     it 'cleans repositories no longer referenced by freshrc' do
+      pending
       rc <<-EOF
         fresh foo/bar file
         fresh git://example.com/foobar.git file
@@ -1675,6 +1738,7 @@ SH
 
   describe 'show' do
     it 'shows sources for fresh lines' do
+      pending
       rc <<-EOF
         fresh foo/bar aliases/*
         fresh foo/bar sedmv --bin --ref=abc123
@@ -1708,6 +1772,7 @@ SH
     end
 
     it 'shows git urls for non github repos' do
+      pending
       rc 'fresh git://example.com/one/two.git file'
       stub_git
 
@@ -1720,6 +1785,7 @@ SH
 
   describe 'adding lines to freshrc interactively' do
     it 'for local files' do
+      pending
       rc 'fresh existing'
       touch fresh_path + 'source/user/repo/file'
       touch fresh_local_path + 'existing'
@@ -1739,6 +1805,7 @@ SH
     end
 
     it 'for new remotes' do
+      pending
       rc 'fresh existing'
       touch fresh_local_path + 'existing'
       stub_git
@@ -1761,6 +1828,7 @@ SH
     end
 
     it 'for new remotes by url' do
+      pending
       stub_git
 
       run_fresh(
@@ -1780,6 +1848,7 @@ SH
     end
 
     it 'for existing remotes and updates if the file does not exist' do
+      pending
       file_add fresh_path + 'source/user/repo/.git/commands', 'touch "$FRESH_PATH/source/user/repo/file"'
       stub_git
 
@@ -1802,6 +1871,7 @@ SH
     end
 
     it 'without updating existing repo if the file exists' do
+      pending
       mkdir fresh_path + 'source/user/repo/.git'
       touch fresh_path + 'source/user/repo/file'
       stub_git
@@ -1820,6 +1890,7 @@ SH
     end
 
     it 'does not add lines to freshrc if declined' do
+      pending
       rc 'fresh existing'
       touch fresh_local_path + 'existing'
       touch fresh_local_path + 'new'
@@ -1844,6 +1915,7 @@ SH
       end
 
       it 'auto adds --bin' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/catacomb/blob/master/bin/catacomb',
           'fresh twe4ked/catacomb bin/catacomb --bin'
@@ -1851,6 +1923,7 @@ SH
       end
 
       it '--bin will not duplicate' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/catacomb/blob/master/bin/catacomb --bin',
           'fresh twe4ked/catacomb bin/catacomb --bin'
@@ -1858,6 +1931,7 @@ SH
       end
 
       it 'works out --ref' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/catacomb/blob/a62f448/bin/catacomb',
           'fresh twe4ked/catacomb bin/catacomb --bin --ref=a62f448'
@@ -1865,6 +1939,7 @@ SH
       end
 
       it 'auto add --file' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/dotfiles/blob/master/config/pryrc',
           'fresh twe4ked/dotfiles config/pryrc --file'
@@ -1872,6 +1947,7 @@ SH
       end
 
       it '--file will not duplicate' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/dotfiles/blob/master/config/pryrc --file',
           'fresh twe4ked/dotfiles config/pryrc --file'
@@ -1879,6 +1955,7 @@ SH
       end
 
       it 'auto adds --file preserves other options' do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/dotfiles/blob/master/config/pryrc --marker',
           'fresh twe4ked/dotfiles config/pryrc --marker --file'
@@ -1886,6 +1963,7 @@ SH
       end
 
       it "doesn't add --bin or --file to other files" do
+        pending
         expect_fresh_add_args(
           'https://github.com/twe4ked/dotfiles/blob/master/shell/aliases/git.sh',
           'fresh twe4ked/dotfiles shell/aliases/git.sh'
@@ -1901,16 +1979,19 @@ SH
     end
 
     it 'edits freshrc files' do
+      pending
       run_fresh command: 'edit', success: "#{File.expand_path '~/.freshrc'}\n"
     end
 
     it 'edits linked freshrc files' do
+      pending
       touch File.expand_path('~/.dotfiles/freshrc')
       FileUtils.ln_s File.expand_path('~/.dotfiles/freshrc'), File.expand_path('~/.freshrc')
       run_fresh command: 'edit', success: "#{Dir.pwd}/home/.dotfiles/freshrc\n"
     end
 
     it 'edits relative linked freshrc files' do
+      pending
       touch File.expand_path('~/.dotfiles/freshrc')
       FileUtils.ln_s '.dotfiles/freshrc', File.expand_path('~/.freshrc')
       run_fresh command: 'edit', success: "#{Dir.pwd}/home/.dotfiles/freshrc\n"
@@ -1919,6 +2000,7 @@ SH
 
   describe 'fresh-options' do
     it 'applies fresh options to multiple lines' do
+      pending
       rc <<-EOF
         fresh-options --file=~/.vimrc --marker=\\"
           fresh mappings.vim --filter='tr a x'
@@ -1952,6 +2034,7 @@ SH
 
   describe 'subcommands' do
     it 'runs subcommands' do
+      pending
       bin = sandbox_path + 'bin/fresh-foo'
       file_add bin, 'echo foobar'
       FileUtils.chmod '+x', bin
@@ -1963,6 +2046,7 @@ SH
     end
 
     it 'errors for unknown commands' do
+      pending
       run_fresh(
         command: 'foo',
         error: "#{ERROR_PREFIX} Unknown command: foo\n"
@@ -1984,6 +2068,7 @@ SH
 
     describe '_escape' do
       it 'escapes arguments' do
+        pending
         run_private_function "_escape foo 'bar baz'"
         expect(File.read(log_path)).to eq "foo bar\\ baz\n"
       end
@@ -1991,21 +2076,25 @@ SH
 
     describe '_confirm' do
       it 'confirms query positive' do
+        pending
         run_private_function "echo y | _confirm 'Test question'"
         expect(File.read(log_path)).to eq 'Test question [Y/n]? '
       end
 
       it 'confirms query negative' do
+        pending
         run_private_function "echo n | _confirm 'Test question'", false
         expect(File.read(log_path)).to eq 'Test question [Y/n]? '
       end
 
       it 'confirms query default' do
+        pending
         run_private_function "echo | _confirm 'Test question'"
         expect(File.read(log_path)).to eq 'Test question [Y/n]? '
       end
 
       it 'confirms query invalid' do
+        pending
         run_private_function %Q{echo -e "blah\ny" | _confirm 'Test question'}
         expect(File.read(log_path)).to eq 'Test question [Y/n]? Test question [Y/n]? '
       end
@@ -2035,6 +2124,7 @@ SH
       end
 
       it 'parses fresh dsl args' do
+        pending
         expect_parse_fresh_dsl_args('aliases/git.sh').to eq <<-EOF.strip_heredoc
           REPO_NAME=
           FILE_NAME=aliases/git.sh
