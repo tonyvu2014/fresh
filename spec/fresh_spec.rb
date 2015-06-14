@@ -963,7 +963,6 @@ describe 'fresh' do
   end
 
   it 'errors when linking bin files with relative paths' do
-    pending
     touch fresh_local_path + 'foobar'
 
     rc 'fresh foobar --bin=foobar'

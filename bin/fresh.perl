@@ -261,6 +261,9 @@ sub fresh_install {
         } elsif (defined($$entry{options}{bin})) {
           $link_path = $$entry{options}{bin} || '~/bin/' . basename($name);
           $link_path =~ s{^~/}{$ENV{HOME}/};
+          if ($link_path !~ /^\//) {
+            entry_error $entry, '--bin file paths cannot be relative.';
+          }
           $build_name = 'bin/' . basename($link_path);
         } else {
           $build_name = "shell.sh";
