@@ -405,7 +405,6 @@ describe 'fresh' do
       end
 
       it 'warns if concatenating bin files' do
-        pending
         rc <<-EOF.strip_heredoc
           FRESH_NO_BIN_CONFLICT_CHECK=true
           fresh gemdiff --bin

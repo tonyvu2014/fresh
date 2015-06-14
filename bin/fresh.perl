@@ -38,7 +38,16 @@ sub read_freshrc {
     echo >> "$_FRESH_OUTPUT"
   }
 
+  _env() {
+    for NAME in "$@"; do
+      if declare -p "$NAME" &> /dev/null; then
+        _output env "$NAME" "$(eval "echo \"\$$NAME\"")"
+      fi
+    done
+  }
+
   fresh() {
+    _env FRESH_NO_BIN_CONFLICT_CHECK
     _output fresh "$@"
   }
 
@@ -57,6 +66,7 @@ SH
 
   my @entries;
   my %default_options;
+  my %env;
 
   while (my $line = <$output_fh>) {
     my @args = shellwords($line);
@@ -79,10 +89,15 @@ SH
         die "Expected 1 or 2 args";
       }
       $entry{options} = {%default_options, %options};
+      $entry{env} = {%env};
+      undef %env;
       push @entries, \%entry;
     } elsif ($cmd eq 'fresh-options') {
       die "fresh-options cannot have args" unless (@args == 0);
       %default_options = %options;
+    } elsif ($cmd eq 'env') {
+      die unless @args == 2;
+      $env{$args[0]} = $args[1];
     } else {
       die "Unknown command: $cmd";
     }
@@ -126,6 +141,18 @@ sub read_file_line {
     close $fh;
     return $line;
   }
+}
+
+sub entry_note {
+  my ($entry, $msg, $desc) = @_;
+
+  my $content = read_file_line($$entry{file}, $$entry{line});
+
+  print STDOUT <<EOF;
+\033[1;33mNote\033[0m: $msg
+$$entry{file}:$$entry{line}: $content
+$desc
+EOF
 }
 
 sub entry_error {
@@ -249,6 +276,16 @@ sub fresh_install {
           $matched = 1;
 
           my $build_target = "$FRESH_PATH/build.new/$build_name";
+          if (!defined($$entry{env}{FRESH_NO_BIN_CONFLICT_CHECK}) || $$entry{env}{FRESH_NO_BIN_CONFLICT_CHECK} ne 'true') {
+            if (defined($$entry{options}{bin}) && -e $build_target) {
+              entry_note $entry, "Multiple sources concatenated into a single bin file.", <<EOF;
+Typically bin files should not be concatenated together into one file.
+"$build_name" may not function as expected.
+
+To disable this warning, add `FRESH_NO_BIN_CONFLICT_CHECK=true` in your freshrc file.
+EOF
+            }
+          }
           if (defined($marker)) {
             append $build_target, "\n" if -e $build_target;
             append $build_target, "$marker fresh: $name\n\n"; # TODO: add repo name
