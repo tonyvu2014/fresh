@@ -10,7 +10,6 @@ use File::Path qw(make_path remove_tree);
 use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
-use Data::Dump qw(dump);
 use sort 'stable';
 
 my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
