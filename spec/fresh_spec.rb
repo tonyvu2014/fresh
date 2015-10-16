@@ -245,7 +245,6 @@ describe 'fresh' do
       end
 
       it 'does not link generic files with relative paths' do
-        pending
         rc 'fresh foo-bar.zsh --file=vendor/foo/bar.zsh'
         touch fresh_local_path + 'foo-bar.zsh'
 
@@ -256,7 +255,6 @@ describe 'fresh' do
       end
 
       it 'does not allow relative paths above build dir' do
-        pending
         rc 'fresh foo-bar.zsh --file=../foo/bar.zsh'
         touch fresh_local_path + 'foo-bar.zsh'
 

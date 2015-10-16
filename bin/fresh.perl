@@ -189,6 +189,13 @@ sub make_entry_link {
   my ($entry, $link_path, $link_target) = @_;
   my $existing_target = readlink($link_path);
 
+  if (is_relative_path($link_path)) {
+    if ($link_path =~ /^\.\./) {
+      entry_error $entry, "Relative paths must be inside build dir.";
+    }
+    return
+  }
+
   if (defined($existing_target)) {
     if ($existing_target ne $link_target) {
       entry_error $entry, "$link_path already exists (pointing to $existing_target)."; # TODO: this should skip info
@@ -201,6 +208,11 @@ sub make_entry_link {
       entry_error $entry, "Could not create $link_path. Do you have permission?", {skip_info => 1};
     }
   }
+}
+
+sub is_relative_path {
+  my ($path) = @_;
+  $path !~ /^[~\/]/
 }
 
 sub fresh_install {
