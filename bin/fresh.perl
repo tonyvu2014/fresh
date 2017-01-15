@@ -226,7 +226,17 @@ sub fresh_install {
   for my $entry (read_freshrc()) {
     my $prefix;
     if ($$entry{repo}) {
-      $prefix = "$FRESH_PATH/source/$$entry{repo}/";
+      # TODO: Not sure if we need $repo_dir as the only difference from $prefix
+      # is the trailing slash. I don't want to change the specs though.
+      my $repo_dir = "$FRESH_PATH/source/$$entry{repo}";
+
+      make_path dirname($repo_dir);
+
+      if (! -d $repo_dir) {
+        system('git', 'clone', "https://github.com/$$entry{repo}", $repo_dir) == 0 or exit(1);
+      }
+
+      $prefix = "$repo_dir/";
     } else {
       $prefix = "$FRESH_LOCAL/";
     }

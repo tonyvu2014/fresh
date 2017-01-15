@@ -435,7 +435,6 @@ describe 'fresh' do
   describe 'remote files' do
     describe 'cloning' do
       it 'clones GitHub repos' do
-        pending
         rc 'fresh repo/name file'
         stub_git
 
@@ -744,7 +743,6 @@ describe 'fresh' do
 
       describe 'errors if trying to use whole repo with invalid arguments' do
         it 'runs with good arguments' do
-          pending
           rc 'fresh repo/name . --file=~/.good/'
           run_fresh
         end
