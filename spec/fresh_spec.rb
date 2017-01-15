@@ -84,7 +84,6 @@ describe 'fresh' do
 
     describe 'using --ignore-missing' do
       it 'builds' do
-        pending
         rc 'fresh aliases/haskell --ignore-missing'
         FileUtils.mkdir_p fresh_local_path
 
@@ -94,7 +93,6 @@ describe 'fresh' do
       end
 
       it 'does not create a file when single source is missing' do
-        pending
         rc <<-EOF.strip_heredoc
           fresh tmux.conf --file --ignore-missing
           fresh ghci --file --ignore-missing

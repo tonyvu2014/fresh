@@ -76,7 +76,7 @@ SH
     my $cmd = shift(@args);
 
     my %options = ();
-    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s') or die "Parse error at $entry{file}:$entry{line}\n";
+    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
 
     if ($cmd eq 'fresh') {
       if (@args == 1) {
@@ -337,7 +337,9 @@ EOF
       }
     }
     unless ($matched) {
-      entry_error $entry, "Could not find \"$$entry{name}\" source file.";
+      unless ($$entry{options}{'ignore-missing'}) {
+        entry_error $entry, "Could not find \"$$entry{name}\" source file.";
+      }
     }
 
     if ($is_dir_target && $is_external_target) {
