@@ -508,7 +508,6 @@ describe 'fresh' do
 
     describe 'building shell files' do
       it 'builds shell files from cloned github repos' do
-        pending
         rc 'fresh repo/name file'
         file_add fresh_path + 'source/repo/name/file', 'remote content'
 

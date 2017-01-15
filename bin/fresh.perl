@@ -321,8 +321,14 @@ EOF
             }
           }
           if (defined($marker)) {
+            # TODO: add ref
             append $build_target, "\n" if -e $build_target;
-            append $build_target, "$marker fresh: $name\n\n"; # TODO: add repo name
+            append $build_target, "$marker fresh:";
+            if ($$entry{repo}) {
+              append $build_target, " $$entry{repo}";
+            }
+            append $build_target, " $name";
+            append $build_target, "\n\n";
           }
           append $build_target, $data;
 
