@@ -61,6 +61,15 @@ def run_fresh(options = {})
     end
   end
 
+  if ENV['DEBUG']
+    puts 'STDOUT ---------------------------------------------------------------'
+    puts @stdout
+    puts 'STDERR ---------------------------------------------------------------'
+    puts @stderr
+    puts 'END ------------------------------------------------------------------'
+    return
+  end
+
   if options[:error]
     expect(@stdout).to be_empty
     expect(@stderr).to eq options[:error]
