@@ -631,7 +631,6 @@ describe 'fresh' do
       end
 
       it 'errors if source file missing at ref' do
-        pending
         rc 'fresh repo/name bad-file --ref=abc1237'
         FileUtils.mkdir_p fresh_path + 'source/repo/name'
         stub_git
@@ -653,7 +652,6 @@ describe 'fresh' do
 
       context 'with --ignore-missing' do
         it 'does not error if source file missing at ref with --ignore-missing' do
-          pending
           rc 'fresh repo/name bad-file --ref=abc1237 --ignore-missing'
           FileUtils.mkdir_p fresh_path + 'source/repo/name'
           stub_git

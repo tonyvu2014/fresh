@@ -76,7 +76,7 @@ SH
     my $cmd = shift(@args);
 
     my %options = ();
-    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
+    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ref:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
 
     if ($cmd eq 'fresh') {
       if (@args == 1) {
@@ -142,6 +142,11 @@ sub read_file_line {
   }
 }
 
+sub format_url {
+  my ($url) = @_;
+  "\033[4;34m$url\033[0m"
+}
+
 sub entry_note {
   my ($entry, $msg, $desc) = @_;
 
@@ -171,9 +176,11 @@ You may need to run `fresh update` if you're adding a new line,
 or the file you're referencing may have moved or been deleted.
 EOF
   }
-#     if [[ -n "$REPO_NAME" ]]; then
-#       echo "Have a look at the repo: <$(_format_url "$(_repo_url "$REPO_NAME")")>" >&2
-#     fi
+  if ($$entry{repo}) {
+    my $url = repo_url($$entry{repo});
+    my $formatted_url = format_url($url);
+    print STDERR "Have a look at the repo: <$formatted_url>\n";
+  }
   exit 1;
 }
 
@@ -215,6 +222,25 @@ sub is_relative_path {
   $path !~ /^[~\/]/
 }
 
+sub prefix_match {
+  my $prefix = shift;
+  my @paths = @_;
+  my @temp;
+
+  foreach my $path (@paths) {
+    if ($path =~ /^$prefix/) {
+      push(@temp, $path);
+    }
+  }
+
+  @temp;
+}
+
+sub repo_url {
+  my ($repo) = @_;
+  "https://github.com/$repo"
+}
+
 sub fresh_install {
   umask 0077;
   remove_tree "$FRESH_PATH/build.new";
@@ -233,7 +259,7 @@ sub fresh_install {
       make_path dirname($repo_dir);
 
       if (! -d $repo_dir) {
-        system('git', 'clone', "https://github.com/$$entry{repo}", $repo_dir) == 0 or exit(1);
+        system('git', 'clone', repo_url($$entry{repo}), $repo_dir) == 0 or exit(1);
       }
 
       $prefix = "$repo_dir/";
@@ -256,6 +282,10 @@ sub fresh_install {
         push @paths, $_;
       };
       find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
+    } elsif ($$entry{options}{ref}) {
+      # TODO: fix cd call
+      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`);
+      @paths = prefix_match($$entry{name}, @paths);
     } else {
       @paths = bsd_glob($full_entry_name);
     }
@@ -305,7 +335,12 @@ sub fresh_install {
           $marker = $$entry{options}{marker} || '#';
         }
 
-        my $data = readfile($path);
+        my $data;
+        if ($$entry{options}{ref}) {
+          $data = `git show $$entry{options}{ref}:$path`;
+        } else {
+          $data = readfile($path);
+        }
         if (defined $data) {
           $matched = 1;
 
@@ -328,6 +363,9 @@ EOF
               append $build_target, " $$entry{repo}";
             }
             append $build_target, " $name";
+            if ($$entry{options}{ref}) {
+              append $build_target, " @ $$entry{options}{ref}";
+            }
             append $build_target, "\n\n";
           }
           append $build_target, $data;
