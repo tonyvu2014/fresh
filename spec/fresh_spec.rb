@@ -665,7 +665,6 @@ describe 'fresh' do
         end
 
         it 'builds files with ref and ignore missing' do
-          pending
           rc <<-EOF.strip_heredoc
             fresh repo/name ackrc --file --ref=abc1237 --ignore-missing
             fresh repo/name missing --file --ref=abc1237 --ignore-missing

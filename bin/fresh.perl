@@ -283,7 +283,6 @@ sub fresh_install {
       };
       find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
     } elsif ($$entry{options}{ref}) {
-      # TODO: fix cd call
       @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`);
       @paths = prefix_match($$entry{name}, @paths);
     } else {
@@ -337,7 +336,7 @@ sub fresh_install {
 
         my $data;
         if ($$entry{options}{ref}) {
-          $data = `git show $$entry{options}{ref}:$path`;
+          $data = `cd $prefix && git show $$entry{options}{ref}:$path`;
         } else {
           $data = readfile($path);
         }
