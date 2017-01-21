@@ -283,6 +283,12 @@ sub fresh_install {
       };
       find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
     } elsif ($$entry{options}{ref}) {
+      if ($$entry{name} =~ /\*/) {
+        # TODO: Save .fresh-order to a temp file and actually use it!
+        my $dir = dirname($$entry{name});
+        `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`;
+      }
+
       @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`);
       @paths = prefix_match($$entry{name}, @paths);
     } else {

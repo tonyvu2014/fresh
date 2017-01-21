@@ -583,7 +583,6 @@ describe 'fresh' do
 
     describe 'using --ref' do
       it 'builds' do
-        pending
         rc <<-EOF.strip_heredoc
           fresh repo/name 'aliases/*' --ref=abc1237
           fresh repo/name ackrc --file --ref=1234567
