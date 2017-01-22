@@ -470,7 +470,6 @@ describe 'fresh' do
       end
 
       it 'clones github repos with full urls' do
-        pending
         rc <<-EOF
           fresh git@github.com:ssh/test.git file
           fresh git://github.com/git/test.git file

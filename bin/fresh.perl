@@ -349,9 +349,14 @@ sub repo_name {
     $repo =~ s/\.git$//;
   }
 
-  my @parts = split(/\//, $repo);
-  my $end = join('-', @parts[1..$#parts]);
-  "$parts[0]/$end"
+  if ($repo =~ /github.com\//) {
+    $repo =~ s/^github\.com\///;
+    $repo
+  } else {
+    my @parts = split(/\//, $repo);
+    my $end = join('-', @parts[1..$#parts]);
+    "$parts[0]/$end"
+  }
 }
 
 sub fresh_install {
