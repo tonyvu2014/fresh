@@ -469,7 +469,6 @@ EOF
           }
 
           if (defined($marker)) {
-            # TODO: add ref
             append $build_target, "\n" if -e $build_target;
             append $build_target, "$marker fresh:";
             if ($$entry{repo}) {
