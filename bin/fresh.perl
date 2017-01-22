@@ -225,15 +225,15 @@ sub is_relative_path {
 sub prefix_match {
   my $prefix = shift;
   my @paths = @_;
-  my @temp;
+  my @matches;
 
   foreach my $path (@paths) {
     if ($path =~ /^$prefix/) {
-      push(@temp, $path);
+      push(@matches, $path);
     }
   }
 
-  @temp;
+  @matches;
 }
 
 sub repo_url {
