@@ -281,20 +281,20 @@ sub fresh_install {
     my $full_entry_name = "$prefix$$entry{name}";
     my $base_entry_name = dirname($full_entry_name);
 
-    if ($is_dir_target) {
-      my $wanted = sub {
-        push @paths, $_;
-      };
-      find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
-    } elsif ($$entry{options}{ref}) {
+    if ($$entry{options}{ref}) {
       if ($$entry{name} =~ /\*/) {
         # TODO: Save .fresh-order to a temp file and actually use it!
         my $dir = dirname($$entry{name});
         `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`; # TODO: escaping and check return value
       }
 
-      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`); # TODO: check return value? escape variables
+      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref} | sort`); # TODO: check return value? escape variables
       @paths = prefix_match($$entry{name}, @paths);
+    } elsif ($is_dir_target) {
+      my $wanted = sub {
+        push @paths, $_;
+      };
+      find({wanted => $wanted, no_chdir => 1}, $full_entry_name);
     } else {
       @paths = bsd_glob($full_entry_name);
     }

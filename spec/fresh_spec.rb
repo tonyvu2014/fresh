@@ -322,7 +322,6 @@ describe 'fresh' do
         end
 
         it 'builds with ref' do
-          pending
           rc 'fresh repo/name recursive-test --ref=abc1237 --file=vendor/test/'
           FileUtils.mkdir_p fresh_path + 'source/repo/name'
           stub_git
