@@ -918,7 +918,6 @@ describe 'fresh' do
 
   describe 'using --filter' do
     it 'runs filters on files' do
-      pending
       file_add fresh_local_path + 'aliases', 'foo other_username bar'
       rc "fresh aliases --filter='sed s/other_username/my_username/ | tr _ -'"
 
@@ -932,7 +931,6 @@ describe 'fresh' do
     end
 
     it 'runs filters on files locked to a ref' do
-      pending
       FileUtils.mkdir_p fresh_local_path
       rc "fresh aliases/git.sh --ref=abc1237 --filter='sed s/test/TEST/'"
       stub_git
@@ -1977,7 +1975,6 @@ SH
 
   describe 'fresh-options' do
     it 'applies fresh options to multiple lines' do
-      pending
       rc <<-EOF
         fresh-options --file=~/.vimrc --marker=\\"
           fresh mappings.vim --filter='tr a x'

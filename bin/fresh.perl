@@ -76,7 +76,7 @@ SH
     my $cmd = shift(@args);
 
     my %options = ();
-    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ref:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
+    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ref:s', 'filter:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
 
     if ($cmd eq 'fresh') {
       if (@args == 1) {
@@ -107,6 +107,49 @@ SH
   unlink $output_filename;
 
   return @entries;
+}
+
+sub apply_filter {
+  my ($input, $cmd) = @_;
+
+  my ($script_fh, $script_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
+  my ($input_fh, $input_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
+
+  print $script_fh <<'SH';
+  set -euo pipefail
+
+  _FRESH_RCFILE="$1"
+  _FRESH_INPUT="$2"
+  _FRESH_FILTER="$3"
+
+  fresh() {
+    true
+  }
+
+  fresh-options() {
+    true
+  }
+
+  source "$_FRESH_RCFILE"
+  cat "$_FRESH_INPUT" | eval "$_FRESH_FILTER"
+SH
+  close $script_fh;
+
+  print $input_fh $input;
+  close $input_fh;
+
+  open(my $output_fh, '-|', 'bash', $script_filename, $FRESH_RCFILE, $input_filename, $cmd) or die "$!";
+
+  local $/ = undef;
+  my $output = <$output_fh>;
+  close $output_fh;
+
+  $? == 0 or die;
+
+  unlink $script_filename;
+  unlink $input_filename;
+
+  return $output;
 }
 
 sub append {
@@ -419,6 +462,12 @@ To disable this warning, add `FRESH_NO_BIN_CONFLICT_CHECK=true` in your freshrc 
 EOF
             }
           }
+
+          my $filter = $$entry{options}{filter};
+          if ($filter) {
+            $data = apply_filter($data, $filter);
+          }
+
           if (defined($marker)) {
             # TODO: add ref
             append $build_target, "\n" if -e $build_target;
@@ -430,8 +479,12 @@ EOF
             if ($$entry{options}{ref}) {
               append $build_target, " @ $$entry{options}{ref}";
             }
+            if ($filter) {
+              append $build_target, " # $filter";
+            }
             append $build_target, "\n\n";
           }
+
           append $build_target, $data;
 
           if (defined($$entry{options}{bin})) {
