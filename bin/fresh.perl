@@ -382,7 +382,7 @@ sub fresh_install {
         `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`; # TODO: escaping and check return value
       }
 
-      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref} | sort`); # TODO: check return value? escape variables
+      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`); # TODO: check return value? escape variables
       if ($is_dir_target) {
         @paths = prefix_match("$$entry{name}/", @paths);
       } else {
@@ -408,6 +408,8 @@ sub fresh_install {
       @paths = sort {
         $path_index->($a) <=> $path_index->($b);
       } @paths;
+    } else {
+      @paths = sort @paths;
     }
 
     for my $path (@paths) {
