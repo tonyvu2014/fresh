@@ -184,6 +184,55 @@ EOF
   exit 1;
 }
 
+sub glob_match {
+  my $glob = shift;
+  my @paths = @_;
+
+  my ($script_fh, $script_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
+  my ($output_fh, $output_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
+
+  print $script_fh <<'SH';
+  set -euo pipefail
+  IFS=$'\n'
+
+  GLOB="$1"
+  OUTPUT_FILE="$2"
+
+  while read LINE; do
+    if [[ "$LINE" == $GLOB ]]; then
+      if ! echo "${LINE#$GLOB}" | grep -q /; then
+        echo "$LINE"
+      fi
+    fi
+  done > "$OUTPUT_FILE"
+SH
+
+  close $script_fh;
+
+  open(my $input_fh, '|-', 'bash', $script_filename, $glob, $output_filename) or die "$!";
+
+  foreach my $path (@paths) {
+    print $input_fh "$path\n";
+  }
+
+  close $input_fh;
+  $? == 0 or die;
+
+  my @matches;
+
+  while (my $line = <$output_fh>) {
+    chomp($line);
+    push(@matches, $line);
+  }
+
+  close $output_fh;
+
+  unlink $script_filename;
+  unlink $output_filename;
+
+  return @matches;
+}
+
 sub prefix_match {
   my $prefix = shift;
   my @paths = @_;
@@ -289,9 +338,11 @@ sub fresh_install {
       }
 
       @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref} | sort`); # TODO: check return value? escape variables
-      my $prefix = $$entry{name};
-      $prefix .= '/' if $is_dir_target;
-      @paths = prefix_match($prefix, @paths);
+      if ($is_dir_target) {
+        @paths = prefix_match("$$entry{name}/", @paths);
+      } else {
+        @paths = glob_match("$$entry{name}", @paths);
+      }
     } elsif ($is_dir_target) {
       my $wanted = sub {
         push @paths, $_;

@@ -790,7 +790,6 @@ describe 'fresh' do
     end
 
     it 'with ref' do
-      pending
       rc "fresh repo/name 'recursive-test/*' --ref=abc1237"
       stub_git
 
@@ -849,7 +848,6 @@ describe 'fresh' do
       end
 
       it 'includes hidden files when explicitly referenced with ref' do
-        pending
         rc "fresh repo/name 'hidden-test/.*' --ref=abc1237"
 
         run_fresh
