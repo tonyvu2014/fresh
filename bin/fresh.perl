@@ -184,6 +184,20 @@ EOF
   exit 1;
 }
 
+sub prefix_match {
+  my $prefix = shift;
+  my @paths = @_;
+  my @matches;
+
+  foreach my $path (@paths) {
+    if (substr($path, 0, length($prefix)) eq $prefix) {
+      push(@matches, $path);
+    }
+  }
+
+  @matches;
+}
+
 sub remove_prefix {
   my ($str, $prefix) = @_;
   if (substr($str, 0, length($prefix)) eq $prefix) {
@@ -220,20 +234,6 @@ sub make_entry_link {
 sub is_relative_path {
   my ($path) = @_;
   $path !~ /^[~\/]/
-}
-
-sub prefix_match {
-  my $prefix = shift;
-  my @paths = @_;
-  my @matches;
-
-  foreach my $path (@paths) {
-    if ($path =~ /^$prefix/) { # TODO: should be substring matching not regex
-      push(@matches, $path);
-    }
-  }
-
-  @matches;
 }
 
 sub repo_url {
