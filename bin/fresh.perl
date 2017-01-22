@@ -332,7 +332,26 @@ sub is_relative_path {
 
 sub repo_url {
   my ($repo) = @_;
-  "https://github.com/$repo"
+  if ($repo =~ /:/) {
+    $repo
+  } else {
+    "https://github.com/$repo"
+  }
+}
+
+sub repo_name {
+  my ($repo) = @_;
+
+  if ($repo =~ /:/) {
+    $repo =~ s/^.*@//;
+    $repo =~ s/^.*:\/\///;
+    $repo =~ s/:/\//;
+    $repo =~ s/\.git$//;
+  }
+
+  my @parts = split(/\//, $repo);
+  my $end = join('-', @parts[1..$#parts]);
+  "$parts[0]/$end"
 }
 
 sub fresh_install {
@@ -352,7 +371,8 @@ sub fresh_install {
     if ($$entry{repo}) {
       # TODO: Not sure if we need $repo_dir as the only difference from $prefix
       # is the trailing slash. I don't want to change the specs though.
-      my $repo_dir = "$FRESH_PATH/source/$$entry{repo}";
+      my $repo_name = repo_name($$entry{repo});
+      my $repo_dir = "$FRESH_PATH/source/$repo_name";
 
       make_path dirname($repo_dir);
 

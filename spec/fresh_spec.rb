@@ -447,7 +447,6 @@ describe 'fresh' do
       end
 
       it 'clones other repos' do
-        pending
         rc <<-EOF
           fresh git://example.com/one/two.git file
           fresh http://example.com/foo file
@@ -520,7 +519,6 @@ describe 'fresh' do
       end
 
       it 'builds shell files from cloned other repos' do
-        pending
         rc 'fresh git://example.com/foobar.git file'
         file_add fresh_path + 'source/example.com/foobar/file', 'remote content'
 
