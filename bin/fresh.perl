@@ -228,7 +228,7 @@ sub prefix_match {
   my @matches;
 
   foreach my $path (@paths) {
-    if ($path =~ /^$prefix/) {
+    if ($path =~ /^$prefix/) { # TODO: should be substring matching not regex
       push(@matches, $path);
     }
   }
@@ -290,10 +290,10 @@ sub fresh_install {
       if ($$entry{name} =~ /\*/) {
         # TODO: Save .fresh-order to a temp file and actually use it!
         my $dir = dirname($$entry{name});
-        `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`;
+        `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`; # TODO: escaping and check return value
       }
 
-      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`);
+      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`); # TODO: check return value? escape variables
       @paths = prefix_match($$entry{name}, @paths);
     } else {
       @paths = bsd_glob($full_entry_name);
@@ -346,7 +346,7 @@ sub fresh_install {
 
         my $data;
         if ($$entry{options}{ref}) {
-          $data = `cd $prefix && git show $$entry{options}{ref}:$path`;
+          $data = `cd $prefix && git show $$entry{options}{ref}:$path`; # TODO: escaping and check return val
         } else {
           $data = readfile($path);
         }
