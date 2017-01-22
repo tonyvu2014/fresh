@@ -289,7 +289,9 @@ sub fresh_install {
       }
 
       @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref} | sort`); # TODO: check return value? escape variables
-      @paths = prefix_match($$entry{name}, @paths);
+      my $prefix = $$entry{name};
+      $prefix .= '/' if $is_dir_target;
+      @paths = prefix_match($prefix, @paths);
     } elsif ($is_dir_target) {
       my $wanted = sub {
         push @paths, $_;

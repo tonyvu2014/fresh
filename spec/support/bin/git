@@ -38,6 +38,7 @@ case "$1" in
     echo recursive-test/foo
     echo recursive-test/bar
     echo recursive-test/abc/def
+    # echo recursive-test-other/abc/def # TODO: uncomment me
     echo hidden-test/foo
     echo hidden-test/.bar
     echo hidden-test/.fresh-order
