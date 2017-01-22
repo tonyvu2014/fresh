@@ -222,7 +222,9 @@ SH
 
   while (my $line = <$output_fh>) {
     chomp($line);
-    push(@matches, $line);
+    if (basename($line) !~ /^\./ || basename($glob) =~ /^\./) {
+      push(@matches, $line);
+    }
   }
 
   close $output_fh;

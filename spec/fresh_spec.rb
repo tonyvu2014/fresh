@@ -837,7 +837,6 @@ describe 'fresh' do
       end
 
       it 'ignores hidden files' do
-        pending
         rc "fresh repo/name 'hidden-test/*' --ref=abc1237"
 
         run_fresh
