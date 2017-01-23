@@ -115,13 +115,15 @@ sub apply_filter {
 
   my ($script_fh, $script_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
   my ($input_fh, $input_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
+  my ($output_fh, $output_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
 
   print $script_fh <<'SH';
   set -euo pipefail
 
   _FRESH_RCFILE="$1"
   _FRESH_INPUT="$2"
-  _FRESH_FILTER="$3"
+  _FRESH_OUTPUT="$3"
+  _FRESH_FILTER="$4"
 
   fresh() {
     true
@@ -132,23 +134,22 @@ sub apply_filter {
   }
 
   source "$_FRESH_RCFILE"
-  cat "$_FRESH_INPUT" | eval "$_FRESH_FILTER"
+  cat "$_FRESH_INPUT" | eval "$_FRESH_FILTER" > "$_FRESH_OUTPUT"
 SH
   close $script_fh;
 
   print $input_fh $input;
   close $input_fh;
 
-  open(my $output_fh, '-|', 'bash', $script_filename, $FRESH_RCFILE, $input_filename, $cmd) or die "$!";
+  system('bash', $script_filename, $FRESH_RCFILE, $input_filename, $output_filename, $cmd) == 0 or die;
 
   local $/ = undef;
   my $output = <$output_fh>;
   close $output_fh;
 
-  $? == 0 or die;
-
   unlink $script_filename;
   unlink $input_filename;
+  unlink $output_filename;
 
   return $output;
 }

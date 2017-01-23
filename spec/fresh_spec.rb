@@ -940,6 +940,8 @@ describe 'fresh' do
         TEST data for abc1237:aliases/git.sh
       EOF
     end
+
+    # TODO: test filtering when freshrc outputs to stdout and stderr
   end
 
   it 'errors when linking bin files with relative paths' do
