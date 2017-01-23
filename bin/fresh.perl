@@ -10,6 +10,7 @@ use File::Path qw(make_path remove_tree);
 use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
+use Cwd qw(getcwd chdir);
 use sort 'stable';
 
 my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
@@ -183,6 +184,25 @@ sub read_file_line {
     close $fh;
     return $line;
   }
+}
+
+sub read_cwd_cmd {
+  my $cwd = shift;
+  my @args = @_;
+
+  $cwd =~ s/(?!^)\/+$//;
+  my $old_cwd = getcwd();
+  chdir($cwd) or die "$!: $cwd";
+
+  open(my $fh, '-|', @args) or die "$!: @args";
+  local $/ = undef;
+  my $output = <$fh>;
+  close($fh);
+  $? == 0 or die "\"@args\" returned $?";
+
+  chdir($old_cwd) or die "$!: $old_cwd";
+
+  return $output;
 }
 
 sub format_url {
@@ -404,10 +424,10 @@ sub fresh_install {
       if ($$entry{name} =~ /\*/) {
         # TODO: Save .fresh-order to a temp file and actually use it!
         my $dir = dirname($$entry{name});
-        `cd $prefix && git show $$entry{options}{ref}:$dir/.fresh-order`; # TODO: escaping and check return value
+        read_cwd_cmd($prefix, 'git', 'show', "$$entry{options}{ref}:$dir/.fresh-order")
       }
 
-      @paths = split(/\n/, `cd $prefix && git ls-tree -r --name-only $$entry{options}{ref}`); # TODO: check return value? escape variables
+      @paths = split(/\n/, read_cwd_cmd($prefix, 'git', 'ls-tree', '-r', '--name-only', $$entry{options}{ref}));
       if ($is_dir_target) {
         @paths = prefix_match("$$entry{name}/", @paths);
       } else {
@@ -471,7 +491,7 @@ sub fresh_install {
 
         my $data;
         if ($$entry{options}{ref}) {
-          $data = `cd $prefix && git show $$entry{options}{ref}:$path`; # TODO: escaping and check return val
+          $data = read_cwd_cmd($prefix, 'git', 'show', "$$entry{options}{ref}:$path");
         } else {
           $data = readfile($path);
         }
