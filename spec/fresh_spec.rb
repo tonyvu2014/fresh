@@ -1016,7 +1016,6 @@ describe 'fresh' do
     end
 
     it 'replaces old symlinks pointing inside the fresh build directory' do
-      pending
       FileUtils.ln_s fresh_path + 'build/pryrc-old-name', File.expand_path('~/.pryrc')
 
       run_fresh

@@ -338,7 +338,12 @@ sub make_entry_link {
 
   if (defined($existing_target)) {
     if ($existing_target ne $link_target) {
-      entry_error $entry, "$link_path already exists (pointing to $existing_target)."; # TODO: this should skip info
+      if (substr($existing_target, 0, length("$FRESH_PATH/build/")) eq "$FRESH_PATH/build/" && -l $link_path) {
+        unlink($link_path);
+        symlink($link_target, $link_path);
+      } else {
+        entry_error $entry, "$link_path already exists (pointing to $existing_target)."; # TODO: this should skip info
+      }
     }
   } elsif (-e $link_path) {
     entry_error $entry, "$link_path already exists.", {skip_info => 1};
