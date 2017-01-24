@@ -532,7 +532,6 @@ describe 'fresh' do
     end
 
     it 'warns if using a remote source that is your local dotfiles' do
-      pending
       rc <<-EOF.strip_heredoc
         fresh repo/name file1
         fresh repo/name file2

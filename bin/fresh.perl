@@ -17,6 +17,7 @@ my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
 my $FRESH_PATH = $ENV{FRESH_PATH} ||= "$ENV{HOME}/.fresh";
 my $FRESH_LOCAL = $ENV{FRESH_LOCAL} ||= "$ENV{HOME}/.dotfiles";
 my $FRESH_BIN_PATH = $ENV{FRESH_BIN_PATH} ||= "$ENV{HOME}/bin";
+my $FRESH_NO_LOCAL_CHECK = $ENV{FRESH_NO_LOCAL_CHECK} ||= 1;
 
 sub read_freshrc {
   my ($script_fh, $script_filename) = tempfile('fresh.XXXXXX', TMPDIR => 1, UNLINK => 1);
@@ -402,6 +403,38 @@ sub fresh_install {
       # is the trailing slash. I don't want to change the specs though.
       my $repo_name = repo_name($$entry{repo});
       my $repo_dir = "$FRESH_PATH/source/$repo_name";
+
+      if (-d "$FRESH_LOCAL/.git" && $FRESH_NO_LOCAL_CHECK) {
+        my $old_cwd = getcwd();
+        chdir($FRESH_LOCAL) or die "$!: $FRESH_LOCAL";
+        my $upstream_branch = `git rev-parse --abbrev-ref --symbolic-full-name \@{u} 2> /dev/null`;
+        chdir($old_cwd) or die "$!: $old_cwd";
+
+        my @parts = split(/\//, $upstream_branch);
+        my $upstream_remote = $parts[0];
+
+        my $local_repo_url;
+        if (defined($upstream_remote)) {
+          $local_repo_url = read_cwd_cmd($FRESH_LOCAL, "git", "config", "--get", "remote.$upstream_remote.url");
+        }
+
+        my $local_repo_name;
+        if (defined($local_repo_url)) {
+          $local_repo_name = repo_name($local_repo_url);
+          chomp($local_repo_name);
+        }
+        my $source_repo_name = repo_name($$entry{repo});
+
+        if (defined($local_repo_name) && $local_repo_name eq $source_repo_name) {
+          entry_note $entry, "You seem to be sourcing your local files remotely.", <<EOF;
+You can remove "$$entry{repo}" when sourcing from your local dotfiles repo (${FRESH_LOCAL}).
+Use `fresh file` instead of `fresh $$entry{repo} file`.
+
+To disable this warning, add `FRESH_NO_LOCAL_CHECK=true` in your freshrc file.
+EOF
+          $FRESH_NO_LOCAL_CHECK = 0;
+        }
+      }
 
       make_path dirname($repo_dir);
 
