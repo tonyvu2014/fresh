@@ -5,7 +5,7 @@ use warnings FATAL => 'all';
 
 use File::Temp qw(tempfile);
 use Text::ParseWords qw(shellwords);
-use Getopt::Long qw(GetOptionsFromArray :config posix_default permute no_ignore_case);
+use Getopt::Long qw(GetOptionsFromArray :config posix_default permute no_ignore_case pass_through);
 use File::Path qw(make_path remove_tree);
 use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
@@ -86,7 +86,7 @@ SH
         $entry{repo} = $args[0];
         $entry{name} = $args[1];
       } else {
-        die "Expected 1 or 2 args";
+        entry_error(\%entry, "Unknown option: $args[2]");
       }
       $entry{options} = {%default_options, %options};
       $entry{env} = {%env};
@@ -229,9 +229,12 @@ sub entry_error {
   my $content = read_file_line($$entry{file}, $$entry{line});
   chomp($content);
 
+  my $file = $$entry{file};
+  $file =~ s{^\Q$ENV{HOME}\E}{~};
+
   print STDERR <<EOF;
 \033[4;31mError\033[0m: $msg
-$$entry{file}:$$entry{line}: $content
+$file:$$entry{line}: $content
 EOF
   if (!$$options{skip_info}) {
     print STDERR <<EOF;
