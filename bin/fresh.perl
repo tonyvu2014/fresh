@@ -252,7 +252,7 @@ EOF
   exit 1;
 }
 
-sub glob_match {
+sub glob_filter {
   my $glob = shift;
   my @paths = @_;
 
@@ -303,7 +303,7 @@ SH
   return @matches;
 }
 
-sub prefix_match {
+sub prefix_filter {
   my $prefix = shift;
   my @paths = @_;
   my @matches;
@@ -467,9 +467,9 @@ EOF
 
       @paths = split(/\n/, read_cwd_cmd($prefix, 'git', 'ls-tree', '-r', '--name-only', $$entry{options}{ref}));
       if ($is_dir_target) {
-        @paths = prefix_match("$$entry{name}/", @paths);
+        @paths = prefix_filter("$$entry{name}/", @paths);
       } else {
-        @paths = glob_match("$$entry{name}", @paths);
+        @paths = glob_filter("$$entry{name}", @paths);
       }
     } elsif ($is_dir_target) {
       my $wanted = sub {
