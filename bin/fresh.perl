@@ -413,26 +413,22 @@ sub fresh_install {
         my @parts = split(/\//, $upstream_branch);
         my $upstream_remote = $parts[0];
 
-        my $local_repo_url;
         if (defined($upstream_remote)) {
-          $local_repo_url = read_cwd_cmd($FRESH_LOCAL, "git", "config", "--get", "remote.$upstream_remote.url");
-        }
+          my $local_repo_url = read_cwd_cmd($FRESH_LOCAL, "git", "config", "--get", "remote.$upstream_remote.url");
+          chomp($local_repo_url);
 
-        my $local_repo_name;
-        if (defined($local_repo_url)) {
-          $local_repo_name = repo_name($local_repo_url);
-          chomp($local_repo_name);
-        }
-        my $source_repo_name = repo_name($$entry{repo});
+          my $local_repo_name = repo_name($local_repo_url);
+          my $source_repo_name = repo_name($$entry{repo});
 
-        if (defined($local_repo_name) && $local_repo_name eq $source_repo_name) {
-          entry_note $entry, "You seem to be sourcing your local files remotely.", <<EOF;
+          if ($local_repo_name eq $source_repo_name) {
+            entry_note $entry, "You seem to be sourcing your local files remotely.", <<EOF;
 You can remove "$$entry{repo}" when sourcing from your local dotfiles repo (${FRESH_LOCAL}).
 Use `fresh file` instead of `fresh $$entry{repo} file`.
 
 To disable this warning, add `FRESH_NO_LOCAL_CHECK=true` in your freshrc file.
 EOF
-          $FRESH_NO_LOCAL_CHECK = 0;
+            $FRESH_NO_LOCAL_CHECK = 0;
+          }
         }
       }
 
