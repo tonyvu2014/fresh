@@ -325,6 +325,11 @@ sub remove_prefix {
   return $str;
 }
 
+sub prefix_match {
+  my ($str, $prefix) = @_;
+  substr($str, 0, length($prefix)) eq "$prefix";
+}
+
 sub make_entry_link {
   my ($entry, $link_path, $link_target) = @_;
   my $existing_target = readlink($link_path);
@@ -338,7 +343,7 @@ sub make_entry_link {
 
   if (defined($existing_target)) {
     if ($existing_target ne $link_target) {
-      if (substr($existing_target, 0, length("$FRESH_PATH/build/")) eq "$FRESH_PATH/build/" && -l $link_path) {
+      if (prefix_match($existing_target, "$FRESH_PATH/build/") && -l $link_path) {
         unlink($link_path);
         symlink($link_target, $link_path);
       } else {
