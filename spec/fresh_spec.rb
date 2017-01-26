@@ -1143,7 +1143,6 @@ describe 'fresh' do
     end
 
     it 'updates fresh files for a specified GitHub user' do
-      pending
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/dotfiles/.git'
       FileUtils.mkdir_p fresh_path + 'source/twe4ked/scripts/.git'
       FileUtils.mkdir_p fresh_path + 'source/jasoncodes/dotfiles/.git'

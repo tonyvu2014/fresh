@@ -620,6 +620,8 @@ EOF
 }
 
 sub fresh_update {
+  my ($filter) = @_;
+
   my @paths;
   my $wanted = sub {
     /\.git\z/ && push @paths, dirname($_);
@@ -629,10 +631,12 @@ sub fresh_update {
   foreach my $path (@paths) {
     my $repo_name = repo_name_from_source_path($path);
 
-    print "* Updating $repo_name\n";
-    my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
-    $git_log =~ s/^/| /;
-    print "$git_log";
+    if (!defined($filter) || prefix_match($repo_name, $filter)) {
+      print "* Updating $repo_name\n";
+      my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
+      $git_log =~ s/^/| /;
+      print "$git_log";
+    }
   }
 }
 
@@ -640,7 +644,7 @@ sub main {
   my $arg = $ARGV[0] || "install";
 
   if ($arg eq "update") {
-    fresh_update;
+    fresh_update($ARGV[1]);
     fresh_install; # TODO: With latest binary
   } elsif ($arg eq "install") {
     fresh_install;
