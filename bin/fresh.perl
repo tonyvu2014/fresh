@@ -627,6 +627,7 @@ sub fresh_update {
     /\.git\z/ && push @paths, dirname($_);
   };
   find({wanted => $wanted, no_chdir => 1}, "$FRESH_PATH/source");
+  @paths = sort @paths;
 
   if (defined($filter)) {
     if ($filter =~ /\//) {
