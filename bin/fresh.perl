@@ -628,15 +628,21 @@ sub fresh_update {
   };
   find({wanted => $wanted, no_chdir => 1}, "$FRESH_PATH/source");
 
+  if (defined($filter)) {
+    if ($filter =~ /\//) {
+      @paths = glob_filter("*$filter", @paths);
+    } else {
+      @paths = glob_filter("*$filter/*", @paths);
+    }
+  }
+
   foreach my $path (@paths) {
     my $repo_name = repo_name_from_source_path($path);
 
-    if (!defined($filter) || prefix_match($repo_name, $filter)) {
-      print "* Updating $repo_name\n";
-      my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
-      $git_log =~ s/^/| /;
-      print "$git_log";
-    }
+    print "* Updating $repo_name\n";
+    my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
+    $git_log =~ s/^/| /;
+    print "$git_log";
   }
 }
 
