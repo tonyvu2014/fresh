@@ -3,6 +3,7 @@
 use strict;
 use warnings FATAL => 'all';
 
+use Carp qw(croak);
 use File::Temp qw(tempfile);
 use Text::ParseWords qw(shellwords);
 use Getopt::Long qw(GetOptionsFromArray :config posix_default permute no_ignore_case pass_through);
@@ -78,7 +79,7 @@ SH
     my $cmd = shift(@args);
 
     my %options = ();
-    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ref:s', 'filter:s', 'ignore-missing') or die "Parse error at $entry{file}:$entry{line}\n";
+    GetOptionsFromArray(\@args, \%options, 'marker:s', 'file:s', 'bin:s', 'ref:s', 'filter:s', 'ignore-missing') or croak "Parse error at $entry{file}:$entry{line}\n";
 
     if ($cmd eq 'fresh') {
       if (@args == 1) {
@@ -94,13 +95,13 @@ SH
       undef %env;
       push @entries, \%entry;
     } elsif ($cmd eq 'fresh-options') {
-      die "fresh-options cannot have args" unless (@args == 0);
+      croak "fresh-options cannot have args" unless (@args == 0);
       %default_options = %options;
     } elsif ($cmd eq 'env') {
-      die unless @args == 2;
+      croak 'expected env to have 2 args' unless @args == 2;
       $env{$args[0]} = $args[1];
     } else {
-      die "Unknown command: $cmd";
+      croak "Unknown command: $cmd";
     }
   }
   close $output_fh;
@@ -142,7 +143,7 @@ SH
   print $input_fh $input;
   close $input_fh;
 
-  system('bash', $script_filename, $FRESH_RCFILE, $input_filename, $output_filename, $cmd) == 0 or die;
+  system('bash', $script_filename, $FRESH_RCFILE, $input_filename, $output_filename, $cmd) == 0 or croak 'filter failed';
 
   local $/ = undef;
   my $output = <$output_fh>;
@@ -158,7 +159,7 @@ SH
 sub append {
   my ($filename, $data) = @_;
   make_path(dirname($filename));
-  open(my $fh, '>>', $filename) or die "$!: $filename";
+  open(my $fh, '>>', $filename) or croak "$!: $filename";
   print $fh $data;
   close $fh;
 }
@@ -194,15 +195,15 @@ sub read_cwd_cmd {
 
   $cwd =~ s/(?!^)\/+$//;
   my $old_cwd = getcwd();
-  chdir($cwd) or die "$!: $cwd";
+  chdir($cwd) or croak "$!: $cwd";
 
-  open(my $fh, '-|', @args) or die "$!: @args";
+  open(my $fh, '-|', @args) or croak "$!: @args";
   local $/ = undef;
   my $output = <$fh>;
   close($fh);
-  $? == 0 or die "\"@args\" returned $?";
+  $? == 0 or croak "\"@args\" returned $?";
 
-  chdir($old_cwd) or die "$!: $old_cwd";
+  chdir($old_cwd) or croak "$!: $old_cwd";
 
   return $output;
 }
@@ -277,14 +278,14 @@ SH
 
   close $script_fh;
 
-  open(my $input_fh, '|-', 'bash', $script_filename, $glob, $output_filename) or die "$!";
+  open(my $input_fh, '|-', 'bash', $script_filename, $glob, $output_filename) or croak "$!";
 
   foreach my $path (@paths) {
     print $input_fh "$path\n";
   }
 
   close $input_fh;
-  $? == 0 or die;
+  $? == 0 or croak 'filter call failed';
 
   my @matches;
 
@@ -416,9 +417,9 @@ sub fresh_install {
 
       if (-d "$FRESH_LOCAL/.git" && $FRESH_NO_LOCAL_CHECK) {
         my $old_cwd = getcwd();
-        chdir($FRESH_LOCAL) or die "$!: $FRESH_LOCAL";
+        chdir($FRESH_LOCAL) or croak "$!: $FRESH_LOCAL";
         my $upstream_branch = `git rev-parse --abbrev-ref --symbolic-full-name \@{u} 2> /dev/null`;
-        chdir($old_cwd) or die "$!: $old_cwd";
+        chdir($old_cwd) or croak "$!: $old_cwd";
 
         my @parts = split(/\//, $upstream_branch);
         my $upstream_remote = $parts[0];
@@ -445,7 +446,7 @@ EOF
       make_path dirname($repo_dir);
 
       if (! -d $repo_dir) {
-        system('git', 'clone', repo_url($$entry{repo}), $repo_dir) == 0 or exit(1);
+        system('git', 'clone', repo_url($$entry{repo}), $repo_dir) == 0 or croak 'git clone failed';
       }
 
       $prefix = "$repo_dir/";
@@ -602,7 +603,7 @@ EOF
     }
   }
 
-  system(qw(find), "$FRESH_PATH/build.new", qw(-type f -exec chmod -w {} ;)) == 0 or die $@;
+  system(qw(find), "$FRESH_PATH/build.new", qw(-type f -exec chmod -w {} ;)) == 0 or croak 'chmod failed';
 
   remove_tree "$FRESH_PATH/build.old";
   rename "$FRESH_PATH/build", "$FRESH_PATH/build.old";
