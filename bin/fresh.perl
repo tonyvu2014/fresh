@@ -327,7 +327,7 @@ sub remove_prefix {
 
 sub prefix_match {
   my ($str, $prefix) = @_;
-  substr($str, 0, length($prefix)) eq "$prefix";
+  substr($str, 0, length($prefix)) eq $prefix;
 }
 
 sub make_entry_link {
