@@ -1122,7 +1122,6 @@ describe 'fresh' do
 
   describe 'update' do
     it 'updates fresh files' do
-      pending
       FileUtils.mkdir_p fresh_path + 'source/repo/name/.git'
       FileUtils.mkdir_p fresh_path + 'source/other_repo/other_name/.git'
       stub_git
@@ -1234,7 +1233,6 @@ describe 'fresh' do
       end
 
       it 'does not update local with other args' do
-        pending
         run_fresh command: %w[update freshshell], success: <<-EOF.strip_heredoc
           * Updating freshshell/fresh
           | Current branch master is up to date.

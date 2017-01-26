@@ -395,6 +395,12 @@ sub repo_name {
   }
 }
 
+sub repo_name_from_source_path {
+  my ($path) = @_;
+  my @parts = split(/\//, $path);
+  join('/', @parts[-2..-1]);
+}
+
 sub fresh_install {
   umask 0077;
   remove_tree "$FRESH_PATH/build.new";
@@ -613,6 +619,34 @@ EOF
   print "Your dot files are now \033[1;32mfresh\033[0m.\n"
 }
 
+sub fresh_update {
+  my @paths;
+  my $wanted = sub {
+    /\.git\z/ && push @paths, dirname($_);
+  };
+  find({wanted => $wanted, no_chdir => 1}, "$FRESH_PATH/source");
+
+  foreach my $path (@paths) {
+    my $repo_name = repo_name_from_source_path($path);
+
+    print "* Updating $repo_name\n";
+    my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
+    $git_log =~ s/^/| /;
+    print "$git_log";
+  }
+}
+
+sub main {
+  my $arg = $ARGV[0] || "install";
+
+  if ($arg eq "update") {
+    fresh_update;
+    fresh_install; # TODO: With latest binary
+  } elsif ($arg eq "install") {
+    fresh_install;
+  }
+}
+
 if (__FILE__ eq $0) {
-  fresh_install
+  main;
 }
