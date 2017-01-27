@@ -208,7 +208,25 @@ sub read_cwd_cmd {
   local $/ = undef;
   my $output = <$fh>;
   close($fh);
-  $? == 0 or croak "\"@args\" returned $?";
+  $? == 0 or exit 1;
+
+  chdir($old_cwd) or croak "$!: $old_cwd";
+
+  return $output;
+}
+
+sub read_cwd_cmd_no_check_exit {
+  my $cwd = shift;
+  my @args = @_;
+
+  $cwd =~ s/(?!^)\/+$//;
+  my $old_cwd = getcwd();
+  chdir($cwd) or croak "$!: $cwd";
+
+  open(my $fh, '-|', @args) or croak "$!: @args";
+  local $/ = undef;
+  my $output = <$fh>;
+  close($fh);
 
   chdir($old_cwd) or croak "$!: $old_cwd";
 
@@ -643,7 +661,7 @@ sub update_repo {
   my ($path, $repo_display_name, $log_file) = @_;
 
   print_and_append $log_file, "* Updating $repo_display_name\n";
-  my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
+  my $git_log = read_cwd_cmd_no_check_exit($path, 'git', 'pull', '--rebase');
 
   (my $pretty_git_log = $git_log) =~ s/^/| /gm;
   print_and_append $log_file, "$pretty_git_log";
@@ -656,6 +674,8 @@ sub update_repo {
       print_and_append $log_file, "| <$compare_url>\n";
     }
   }
+
+  $? == 0 or exit(1);
 }
 
 sub fresh_update {

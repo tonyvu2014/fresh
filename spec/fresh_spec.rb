@@ -1367,7 +1367,6 @@ describe 'fresh' do
     end
 
     it 'does not run build if update fails' do
-      pending
       rc 'fresh aliases'
       file_add fresh_local_path + 'aliases', "alias gs='git status'"
       FileUtils.mkdir_p fresh_path + 'source/repo/name1/.git'
