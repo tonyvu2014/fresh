@@ -804,7 +804,13 @@ sub main {
   } elsif ($arg eq "search") {
     fresh_search(@ARGV);
   } else {
-    fatal_error "Unknown command: $arg";
+    my $bin_name = quotemeta("fresh-$arg");
+
+    if (system("which $bin_name &> /dev/null") == 0) {
+      exec($bin_name, @ARGV);
+    } else {
+      fatal_error "Unknown command: $arg";
+    }
   }
 }
 

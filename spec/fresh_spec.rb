@@ -2003,7 +2003,6 @@ SH
 
   describe 'subcommands' do
     it 'runs subcommands' do
-      pending
       bin = sandbox_path + 'bin/fresh-foo'
       file_add bin, 'echo foobar'
       FileUtils.chmod '+x', bin
