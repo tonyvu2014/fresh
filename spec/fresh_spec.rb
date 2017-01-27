@@ -1337,7 +1337,6 @@ describe 'fresh' do
     end
 
     it 'logs update output' do
-      pending
       FileUtils.mkdir_p fresh_local_path + '.git'
       FileUtils.mkdir_p fresh_path + 'source/repo/name/.git'
       FileUtils.mkdir_p fresh_path + 'source/other_repo/other_name/.git'

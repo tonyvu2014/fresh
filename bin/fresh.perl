@@ -12,6 +12,7 @@ use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
 use Cwd qw(getcwd chdir);
+use POSIX qw(strftime);
 use sort 'stable';
 
 my $FRESH_RCFILE = $ENV{FRESH_RCFILE} ||= "$ENV{HOME}/.freshrc";
@@ -162,6 +163,12 @@ sub append {
   open(my $fh, '>>', $filename) or croak "$!: $filename";
   print $fh $data;
   close $fh;
+}
+
+sub print_and_append {
+  my ($filename, $data) = @_;
+  print $data;
+  append $filename, $data;
 }
 
 sub readfile {
@@ -633,20 +640,20 @@ EOF
 }
 
 sub update_repo {
-  my ($path, $repo_display_name) = @_;
+  my ($path, $repo_display_name, $log_file) = @_;
 
-  print "* Updating $repo_display_name\n";
+  print_and_append $log_file, "* Updating $repo_display_name\n";
   my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
 
   (my $pretty_git_log = $git_log) =~ s/^/| /gm;
-  print "$pretty_git_log";
+  print_and_append $log_file, "$pretty_git_log";
 
   if ($git_log =~ /^From .*(:\/\/github.com\/|git\@github.com:)(.*)/) {
     my $repo_name = $2;
     $git_log =~ /^ {2,}([0-9a-f]{7,})\.\.([0-9a-f]{7,}) /gm;
     if (defined($1) && defined($2)) {
       my $compare_url =  format_url("https://github.com/$repo_name/compare/$1...$2");
-      print "| <$compare_url>\n";
+      print_and_append $log_file, "| <$compare_url>\n";
     }
   }
 }
@@ -661,6 +668,11 @@ usage: fresh update <filter>
 EOF
   }
 
+
+  make_path "$FRESH_PATH/logs";
+  my $date = strftime('%Y-%m-%d-%H%M%S', localtime);
+  my $log_file = "$FRESH_PATH/logs/update-$date.log";
+
   my ($filter) = @_;
 
   if ((!defined($filter) || $filter eq "--local") && -d "$FRESH_LOCAL/.git") {
@@ -668,7 +680,7 @@ EOF
     my $git_status = read_cwd_cmd($FRESH_LOCAL, 'git', 'status', '--porcelain');
 
     if ($git_status eq "") {
-      update_repo($FRESH_LOCAL, 'local files');
+      update_repo($FRESH_LOCAL, 'local files', $log_file);
     } else {
       note "Not updating $FRESH_LOCAL because it has uncommitted changes.";
       exit(1); # TODO: Only if --local
@@ -701,7 +713,7 @@ EOF
 
     foreach my $path (@paths) {
       my $repo_name = repo_name_from_source_path($path);
-      update_repo($path, $repo_name);
+      update_repo($path, $repo_name, $log_file);
     }
   }
 }
