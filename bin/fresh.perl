@@ -637,8 +637,17 @@ sub update_repo {
 
   print "* Updating $repo_name\n";
   my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
-  $git_log =~ s/^/| /gm;
-  print "$git_log";
+
+  (my $pretty_git_log = $git_log) =~ s/^/| /gm;
+  print "$pretty_git_log";
+
+  if ($git_log =~ /^From .*(:\/\/github.com\/|git\@github.com:)/) {
+    $git_log =~ /^ {2,}([0-9a-f]{7,})\.\.([0-9a-f]{7,}) /gm;
+    if (defined($1) && defined($2)) {
+      my $compare_url =  format_url("https://github.com/$repo_name/compare/$1...$2");
+      print "| <$compare_url>\n";
+    }
+  }
 }
 
 sub fresh_update {

@@ -1280,7 +1280,6 @@ describe 'fresh' do
     end
 
     it 'shows a github compare url when updating remote' do
-      pending
       file_add fresh_path + 'source/jasoncodes/dotfiles/.git/output', <<-EOF.strip_heredoc
         From https://github.com/jasoncodes/dotfiles
            47ad84c..57b8b2b  master     -> origin/master
