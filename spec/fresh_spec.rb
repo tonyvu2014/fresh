@@ -1523,7 +1523,6 @@ SH
 
     describe 'FRESH_NO_PATH_EXPORT' do
       it 'does not output a $PATH if enabled' do
-        pending
         ENV['FRESH_NO_PATH_EXPORT'] = '1'
         run_fresh
 
