@@ -287,6 +287,7 @@ EOF
 sub fatal_error {
   my ($msg, $content) = @_;
   $content ||= "";
+  chomp($msg);
   print STDERR "\033[4;31mError\033[0m: $msg\n$content";
   exit 1;
 }
@@ -645,6 +646,18 @@ EOF
       $build_name = remove_prefix($build_name =~ s{^~/}{$ENV{HOME}/}r, $ENV{HOME}) =~ s/^\///r =~ s/^\.//r;
       make_entry_link($entry, $link_path, "$FRESH_PATH/build/$build_name");
     }
+  }
+
+  if (!defined($ENV{FRESH_NO_BIN_CHECK}) && !(-x "$FRESH_PATH/build.new/bin/fresh")) {
+    fatal_error <<EOF;
+It looks you do not have fresh in your freshrc file. This could result
+in difficulties running `fresh` later. You probably want to add a line like
+the following using `fresh edit`:
+
+  fresh freshshell/fresh bin/fresh --bin
+
+To disable this error, add `FRESH_NO_BIN_CHECK=true` in your freshrc file.
+EOF
   }
 
   system(qw(find), "$FRESH_PATH/build.new", qw(-type f -exec chmod -w {} ;)) == 0 or croak 'chmod failed';

@@ -1414,7 +1414,6 @@ describe 'fresh' do
       end
 
       it 'errors if freshrc is missing bin/fresh' do
-        pending
         run_fresh error: <<-EOF.strip_heredoc
           #{ERROR_PREFIX} It looks you do not have fresh in your freshrc file. This could result
           in difficulties running `fresh` later. You probably want to add a line like
