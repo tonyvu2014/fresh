@@ -1300,7 +1300,6 @@ describe 'fresh' do
     end
 
     it 'shows a github compare url when updating local' do
-      pending
       stub_git
 
       file_add fresh_local_path + '.git/output', <<-EOF.strip_heredoc
