@@ -788,7 +788,7 @@ sub fresh_edit {
   } else {
     $rcfile = $FRESH_RCFILE;
   }
-  system($ENV{EDITOR} || 'vi', $rcfile) == 0 or exit(1);
+  exec($ENV{EDITOR} || 'vi', $rcfile) == 0 or exit(1);
 }
 
 sub main {
