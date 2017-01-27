@@ -792,7 +792,7 @@ sub main {
   } elsif ($arg eq "search") {
     fresh_search(@ARGV);
   } else {
-    croak "FIXME";
+    fatal_error "Unknown command: $arg";
   }
 }
 

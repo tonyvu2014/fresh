@@ -1996,7 +1996,6 @@ SH
     end
 
     it 'errors for unknown commands' do
-      pending
       run_fresh(
         command: 'foo',
         error: "#{ERROR_PREFIX} Unknown command: foo\n"
