@@ -1323,7 +1323,6 @@ describe 'fresh' do
     end
 
     it 'shows no url when updating other repos' do
-      pending
       stub_git
 
       file_add fresh_path + 'source/gitorious.org/willgit-mainline/.git/output', <<-EOF.strip_heredoc

@@ -637,7 +637,7 @@ sub update_repo {
 
   print "* Updating $repo_name\n";
   my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
-  $git_log =~ s/^/| /;
+  $git_log =~ s/^/| /gm;
   print "$git_log";
 }
 
