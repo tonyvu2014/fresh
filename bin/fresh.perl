@@ -781,7 +781,6 @@ sub fresh_search {
   }
 }
 
-
 sub fresh_edit {
   my $rcfile;
   if (-l $FRESH_RCFILE ) {
