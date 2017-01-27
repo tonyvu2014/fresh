@@ -762,6 +762,8 @@ sub main {
     fresh_install; # TODO: With latest binary
   } elsif ($arg eq "install") {
     fresh_install;
+  } else {
+    croak "FIXME";
   }
 }
 
