@@ -789,7 +789,6 @@ sub fresh_edit {
   } else {
     $rcfile = $FRESH_RCFILE;
   }
-  # TODO: No specs on 'vi' fallback
   system($ENV{EDITOR} || 'vi', $rcfile) == 0 or exit(1);
 }
 
