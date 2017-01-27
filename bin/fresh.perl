@@ -11,7 +11,7 @@ use File::Path qw(make_path remove_tree);
 use File::Glob qw(bsd_glob);
 use File::Basename qw(dirname basename);
 use File::Find qw(find);
-use Cwd qw(getcwd chdir);
+use Cwd qw(getcwd chdir realpath);
 use POSIX qw(strftime);
 use sort 'stable';
 
@@ -781,6 +781,18 @@ sub fresh_search {
   }
 }
 
+
+sub fresh_edit {
+  my $rcfile;
+  if (-l $FRESH_RCFILE ) {
+    $rcfile = realpath($FRESH_RCFILE);
+  } else {
+    $rcfile = $FRESH_RCFILE;
+  }
+  # TODO: No specs on 'vi' fallback
+  system($ENV{EDITOR} || 'vi', $rcfile) == 0 or exit(1);
+}
+
 sub main {
   my $arg = shift(@ARGV) || "install";
 
@@ -789,6 +801,8 @@ sub main {
     fresh_install; # TODO: With latest binary
   } elsif ($arg eq "install") {
     fresh_install;
+  } elsif ($arg eq "edit") {
+    fresh_edit;
   } elsif ($arg eq "search") {
     fresh_search(@ARGV);
   } else {

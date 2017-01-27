@@ -1930,19 +1930,16 @@ SH
     end
 
     it 'edits freshrc files' do
-      pending
       run_fresh command: 'edit', success: "#{File.expand_path '~/.freshrc'}\n"
     end
 
     it 'edits linked freshrc files' do
-      pending
       touch File.expand_path('~/.dotfiles/freshrc')
       FileUtils.ln_s File.expand_path('~/.dotfiles/freshrc'), File.expand_path('~/.freshrc')
       run_fresh command: 'edit', success: "#{Dir.pwd}/home/.dotfiles/freshrc\n"
     end
 
     it 'edits relative linked freshrc files' do
-      pending
       touch File.expand_path('~/.dotfiles/freshrc')
       FileUtils.ln_s '.dotfiles/freshrc', File.expand_path('~/.freshrc')
       run_fresh command: 'edit', success: "#{Dir.pwd}/home/.dotfiles/freshrc\n"
