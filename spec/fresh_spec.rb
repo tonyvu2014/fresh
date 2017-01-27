@@ -1191,7 +1191,6 @@ describe 'fresh' do
       end
 
       it 'updates local repo with no args' do
-        pending
         run_fresh command: 'update', success: <<-EOF.strip_heredoc
           * Updating local files
           | Current branch master is up to date.
@@ -1213,7 +1212,6 @@ describe 'fresh' do
       end
 
       it 'only updates local repo with --local arg' do
-        pending
         run_fresh command: %w[update --local], success: <<-EOF.strip_heredoc
           * Updating local files
           | Current branch master is up to date.
@@ -1245,7 +1243,6 @@ describe 'fresh' do
     end
 
     it 'does not update local dirty local' do
-      pending
       touch fresh_local_path + '.git/dirty'
       stub_git
 
@@ -1262,7 +1259,6 @@ describe 'fresh' do
     end
 
     it 'errors if no matching sources to update' do
-      pending
       FileUtils.mkdir_p fresh_path + 'source'
 
       run_fresh(
@@ -1272,7 +1268,6 @@ describe 'fresh' do
     end
 
     it 'errors if more than one argument is passed to update' do
-      pending
       FileUtils.mkdir_p fresh_path + 'source'
 
       run_fresh command: %w[update twe4ked dotfiles], error: <<-EOF.strip_heredoc

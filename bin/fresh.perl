@@ -213,6 +213,12 @@ sub format_url {
   "\033[4;34m$url\033[0m"
 }
 
+sub note {
+  my ($msg) = @_;
+
+  print "\033[1;33mNote\033[0m: $msg\n";
+}
+
 sub entry_note {
   my ($entry, $msg, $desc) = @_;
 
@@ -250,6 +256,13 @@ EOF
     my $formatted_url = format_url($url);
     print STDERR "Have a look at the repo: <$formatted_url>\n";
   }
+  exit 1;
+}
+
+sub fatal_error {
+  my ($msg, $content) = @_;
+  $content ||= "";
+  print STDERR "\033[4;31mError\033[0m: $msg\n$content";
   exit 1;
 }
 
@@ -619,39 +632,75 @@ EOF
   print "Your dot files are now \033[1;32mfresh\033[0m.\n"
 }
 
+sub update_repo {
+  my ($path, $repo_name) = @_;
+
+  print "* Updating $repo_name\n";
+  my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
+  $git_log =~ s/^/| /;
+  print "$git_log";
+}
+
 sub fresh_update {
+  if (0 + @_ > 1) {
+    fatal_error "Invalid arguments.", <<EOF;
+
+usage: fresh update <filter>
+
+    The filter can be either a GitHub username or username/repo.
+EOF
+  }
+
   my ($filter) = @_;
 
-  my @paths;
-  my $wanted = sub {
-    /\.git\z/ && push @paths, dirname($_);
-  };
-  find({wanted => $wanted, no_chdir => 1}, "$FRESH_PATH/source");
-  @paths = sort @paths;
+  if ((!defined($filter) || $filter eq "--local") && -d "$FRESH_LOCAL/.git") {
+    read_cwd_cmd($FRESH_LOCAL, 'git', 'rev-parse', '@{u}'); # TODO: Add specs and impliment "non-tracking branch" note
+    my $git_status = read_cwd_cmd($FRESH_LOCAL, 'git', 'status', '--porcelain');
 
-  if (defined($filter)) {
-    if ($filter =~ /\//) {
-      @paths = glob_filter("*$filter", @paths);
+    if ($git_status eq "") {
+      update_repo($FRESH_LOCAL, 'local files');
     } else {
-      @paths = glob_filter("*$filter/*", @paths);
+      note "Not updating $FRESH_LOCAL because it has uncommitted changes.";
+      exit(1); # TODO: Only if --local
     }
   }
 
-  foreach my $path (@paths) {
-    my $repo_name = repo_name_from_source_path($path);
+  if (defined($filter) && $filter eq "--local") {
+    return;
+  }
 
-    print "* Updating $repo_name\n";
-    my $git_log = read_cwd_cmd($path, 'git', 'pull', '--rebase');
-    $git_log =~ s/^/| /;
-    print "$git_log";
+  if (-d "$FRESH_PATH/source") {
+    my @paths;
+    my $wanted = sub {
+      /\.git\z/ && push @paths, dirname($_);
+    };
+    find({wanted => $wanted, no_chdir => 1}, "$FRESH_PATH/source");
+    @paths = sort @paths;
+
+    if (defined($filter)) {
+      if ($filter =~ /\//) {
+        @paths = glob_filter("*$filter", @paths);
+      } else {
+        @paths = glob_filter("*$filter/*", @paths);
+      }
+    }
+
+    if (!@paths) {
+      fatal_error("No matching sources found.");
+    }
+
+    foreach my $path (@paths) {
+      my $repo_name = repo_name_from_source_path($path);
+      update_repo($path, $repo_name);
+    }
   }
 }
 
 sub main {
-  my $arg = $ARGV[0] || "install";
+  my $arg = shift(@ARGV) || "install";
 
   if ($arg eq "update") {
-    fresh_update($ARGV[1]);
+    fresh_update(@ARGV);
     fresh_install; # TODO: With latest binary
   } elsif ($arg eq "install") {
     fresh_install;
