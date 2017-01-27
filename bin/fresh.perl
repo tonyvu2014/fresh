@@ -197,6 +197,18 @@ sub read_file_line {
   }
 }
 
+sub read_cmd {
+  my @args = @_;
+
+  open(my $fh, '-|', @args) or croak "$!: @args";
+  local $/ = undef;
+  my $output = <$fh>;
+  close($fh);
+  $? == 0 or exit 1;
+
+  return $output;
+}
+
 sub read_cwd_cmd {
   my $cwd = shift;
   my @args = @_;
@@ -754,6 +766,21 @@ EOF
   }
 }
 
+sub fresh_search {
+  if (0 + @_ == 0) {
+    fatal_error "No search query given."
+  }
+
+  my $args = join(' ', @_);
+  my $results = read_cmd('curl', '-sS', 'http://api.freshshell.com/directory', '--get', '--data-urlencode', "q=$args");
+
+  if ($results eq "") {
+    fatal_error "No results."
+  } else {
+    print $results;
+  }
+}
+
 sub main {
   my $arg = shift(@ARGV) || "install";
 
@@ -762,6 +789,8 @@ sub main {
     fresh_install; # TODO: With latest binary
   } elsif ($arg eq "install") {
     fresh_install;
+  } elsif ($arg eq "search") {
+    fresh_search(@ARGV);
   } else {
     croak "FIXME";
   }

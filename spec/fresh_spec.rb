@@ -1563,7 +1563,6 @@ SH
 
   describe 'search' do
     it 'searches directory for keywords' do
-      pending
       stub_curl 'foo', 'bar baz'
 
       run_fresh command: %w[search foo bar], success: <<-EOF.strip_heredoc
@@ -1582,7 +1581,6 @@ SH
     end
 
     it 'shows error if no search query given' do
-      pending
       stub_curl
 
       run_fresh(
@@ -1594,7 +1592,6 @@ SH
     end
 
     it 'shows error if search has no results' do
-      pending
       stub_curl
 
       run_fresh(
@@ -1613,7 +1610,6 @@ SH
     end
 
     it 'shows error if search api call fails' do
-      pending
       stub_curl error: 'Could not connect.'
 
       run_fresh(
