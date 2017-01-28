@@ -1630,7 +1630,6 @@ SH
 
   describe 'clean' do
     it 'cleans dead symlinks from home and bin' do
-      pending
       rc <<-EOF
         fresh alive --file
         fresh alive --bin

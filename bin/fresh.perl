@@ -791,6 +791,35 @@ sub fresh_edit {
   exec($ENV{EDITOR} || 'vi', $rcfile) == 0 or exit(1);
 }
 
+sub fresh_clean {
+  fresh_clean_symlinks($ENV{HOME});
+  fresh_clean_symlinks("$ENV{HOME}/bin");
+}
+
+sub fresh_clean_symlinks {
+  my ($base) = @_;
+
+  if (-e $base) {
+    my @symlinks;
+    my $wanted = sub {
+      -l && push @symlinks, $_;
+    };
+    sub nodirs {
+      grep ! -d, @_;
+    }
+    find({wanted => $wanted, no_chdir => 1, preprocess => \&nodirs}, $base);
+
+    foreach my $symlink (@symlinks) {
+      my $dest = readlink($symlink);
+      if (prefix_match($dest, "$FRESH_PATH/build/") && ! -e $dest ) {
+        (my $display = $symlink) =~ s{^\Q$ENV{HOME}\E}{~};
+        print "Removing $display\n";
+        unlink($symlink);
+      }
+    }
+  }
+}
+
 sub main {
   my $arg = shift(@ARGV) || "install";
 
@@ -801,6 +830,8 @@ sub main {
     fresh_install;
   } elsif ($arg eq "edit") {
     fresh_edit;
+  } elsif ($arg eq "clean") {
+    fresh_clean;
   } elsif ($arg eq "search") {
     fresh_search(@ARGV);
   } else {
