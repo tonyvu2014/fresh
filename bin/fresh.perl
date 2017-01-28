@@ -806,8 +806,8 @@ sub main {
   } else {
     my $bin_name = "fresh-$arg";
 
-    if (system("which ${\quotemeta($bin_name)} &> /dev/null") == 0) {
-      exec($bin_name, @ARGV);
+    if (system("which ${\quotemeta($bin_name)} > /dev/null 2> /dev/null") == 0) {
+      exec($bin_name, @ARGV) or croak "$!";
     } else {
       fatal_error "Unknown command: $arg";
     }
