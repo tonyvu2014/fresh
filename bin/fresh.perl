@@ -804,10 +804,10 @@ sub fresh_clean_symlinks {
     my $wanted = sub {
       -l && push @symlinks, $_;
     };
-    sub nodirs {
-      grep ! -d, @_;
-    }
-    find({wanted => $wanted, no_chdir => 1, preprocess => \&nodirs}, $base);
+    my $nodirs = sub {
+      grep {! -d File::Spec->rel2abs($_, $base)} @_;
+    };
+    find({wanted => $wanted, no_chdir => 1, preprocess => $nodirs}, $base);
 
     foreach my $symlink (@symlinks) {
       my $dest = readlink($symlink);
